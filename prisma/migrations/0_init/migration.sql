@@ -41,13 +41,13 @@ CREATE TABLE "api"."teams" (
 
 -- CreateTable
 CREATE TABLE "app"."schedule" (
-    "id" BIGSERIAL NOT NULL,
+    "leage" TEXT NOT NULL,
     "game_pk" BIGINT NOT NULL,
     "game_date" TIMESTAMPTZ(6) NOT NULL,
     "link" TEXT NOT NULL,
     "status" TEXT NOT NULL,
 
-    CONSTRAINT "schedule_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "schedule_pkey" PRIMARY KEY ("leage","game_pk")
 );
 
 -- AddForeignKey
