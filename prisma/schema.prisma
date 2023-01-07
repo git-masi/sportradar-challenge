@@ -1,0 +1,61 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("APP_DATABASE_URL")
+  schemas  = ["api", "app"]
+}
+
+model player_stats {
+  player_id                                  BigInt
+  game_pk                                    BigInt
+  player_team_id                             BigInt
+  opponent_team_id                           BigInt
+  assists                                    Int     @db.SmallInt
+  goals                                      Int     @db.SmallInt
+  hits                                       Int     @db.SmallInt
+  points                                     Int     @db.SmallInt
+  penality_minutes                           Int     @db.SmallInt
+  teams_player_stats_opponent_team_idToteams teams   @relation("player_stats_opponent_team_idToteams", fields: [opponent_team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  players                                    players @relation(fields: [player_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teams_player_stats_player_team_idToteams   teams   @relation("player_stats_player_team_idToteams", fields: [player_team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([player_id, game_pk])
+  @@schema("api")
+}
+
+model players {
+  id           BigInt         @id
+  team_id      BigInt
+  name         String
+  age          Int            @db.SmallInt
+  number       Int            @db.SmallInt
+  position     String
+  player_stats player_stats[]
+  teams        teams          @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("api")
+}
+
+model teams {
+  id                                                BigInt         @id
+  name                                              String
+  player_stats_player_stats_opponent_team_idToteams player_stats[] @relation("player_stats_opponent_team_idToteams")
+  player_stats_player_stats_player_team_idToteams   player_stats[] @relation("player_stats_player_team_idToteams")
+  players                                           players[]
+
+  @@schema("api")
+}
+
+model schedule {
+  id        BigInt   @id @default(autoincrement())
+  game_pk   BigInt
+  game_date DateTime @db.Timestamptz(6)
+  link      String
+  status    String
+
+  @@schema("app")
+}

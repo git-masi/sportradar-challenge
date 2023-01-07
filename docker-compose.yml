@@ -1,0 +1,42 @@
+name: sportradar
+
+services:
+  sportradar-db:
+    container_name: sportradar-db
+    image: postgres:15-alpine
+    restart: 'on-failure'
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - API_SCHEMA=${API_SCHEMA}
+      - APP_SCHEMA=${APP_SCHEMA}
+      - DB_ANON_ROLE=${DB_ANON_ROLE}
+      - APP_ROLE=${APP_ROLE}
+      - APP_PASSWORD=${APP_PASSWORD}
+      - POSTGREST_ROLE=${POSTGREST_ROLE}
+      - POSTGREST_PASSWORD=${POSTGREST_PASSWORD}
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_LISTEN_PORT}
+    volumes:
+      # Anything in initdb directory is created in the database
+      # See "How to extend this image" section at https://hub.docker.com/r/_/postgres/
+      - './initdb:/docker-entrypoint-initdb.d'
+      # Use this to persist data locally
+      # - "sportradar_db_data:/var/lib/postgresql/data"
+
+  # Run a PGAdmin container to interact with the postgres DB in the browser
+  # When connecting to the DB use "host.docker.internal" instead of "localhost"
+  pgadmin:
+    container_name: sportradar-pgadmin
+    image: dpage/pgadmin4
+    restart: 'on-failure'
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_LISTEN_PORT}
+    ports:
+      - '5050:5050'

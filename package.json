@@ -1,0 +1,30 @@
+{
+  "name": "sport-radar-challenge-v1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "build": "tsc",
+    "dev:build": "tsc -w",
+    "dev:run": "nodemon ./dist/index.js"
+  },
+  "keywords": [],
+  "author": "Eric Masi",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^4.8.1",
+    "cron": "^2.1.0",
+    "got": "^12.5.3",
+    "nanoid": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/cron": "^2.0.0",
+    "@types/node": "^18.11.18",
+    "nodemon": "^2.0.20",
+    "prisma": "^4.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}

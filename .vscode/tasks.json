@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "init",
+      "type": "shell",
+      "command": "[ ! -f \"./dist/index.js\" ] && npm run build || echo \"init complete\"",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "label": "dev:build",
+      "type": "npm",
+      "script": "dev:build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "dev:run",
+      "type": "npm",
+      "script": "dev:run",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "dev:tasks",
+      "dependsOn": ["dev:build", "dev:run"]
+    },
+    {
+      "label": "dev",
+      "dependsOn": ["init", "dev:tasks"],
+      "dependsOrder": "sequence"
+    }
+  ]
+}
