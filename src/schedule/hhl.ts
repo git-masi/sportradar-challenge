@@ -98,6 +98,7 @@ type ScheduledGame = {
 
 export async function initNhlJob(ctx: Context): Promise<JobRequest> {
   return {
+    name: 'NHL Schedule',
     cron: '*/10 * * * * *',
     fn: async ({ end }) => {
       try {

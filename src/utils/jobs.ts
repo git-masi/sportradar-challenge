@@ -8,18 +8,27 @@ type JobFn = (params: JobFnParams) => Promise<void>;
 type ScheduledJob = {
   job: CronJob;
   id: string;
+  name: string;
+};
+
+type JobMetaData = {
+  id: string;
+  name: string;
 };
 
 export type JobRequest = {
   cron: string | Date;
   fn: JobFn;
+  name: string;
 };
 
-export function JobManager() {
+export function JobManager(
+  info?: (msg: string, metaData: JobMetaData) => void
+) {
   let jobs: ScheduledJob[] = [];
 
   const unregister = (jobId: string) => {
-    const { job } = jobs.find(({ id }) => id === jobId) ?? {};
+    const { job, name } = jobs.find(({ id }) => id === jobId) ?? {};
 
     if (!(job instanceof CronJob)) {
       return;
@@ -28,9 +37,13 @@ export function JobManager() {
     job.stop();
 
     jobs = jobs.filter(({ id }) => id !== jobId);
+
+    if (info instanceof Function && typeof name === 'string') {
+      info('Unregistered job', { id: jobId, name });
+    }
   };
 
-  const register = ({ cron, fn }: JobRequest) => {
+  const register = ({ cron, fn, name }: JobRequest) => {
     const id = nanoid(10);
     const job = new CronJob(
       cron,
@@ -39,7 +52,11 @@ export function JobManager() {
       true
     );
 
-    jobs = [...jobs, { job, id }];
+    jobs = [...jobs, { job, id, name }];
+
+    if (info instanceof Function) {
+      info('New job registered', { id, name });
+    }
   };
 
   return Object.freeze({ register });
