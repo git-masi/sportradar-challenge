@@ -101,6 +101,7 @@ export async function updateNhlSchedule(ctx: Context) {
   const games = getGames(schedule);
   const scheduledGames = getScheduledGames(games);
   await saveSchedule(scheduledGames, ctx.prisma);
+  ctx.logger.info('Successfully added NHL games to the schedule');
 }
 
 async function saveSchedule(
