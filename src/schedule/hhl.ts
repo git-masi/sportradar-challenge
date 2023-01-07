@@ -137,9 +137,11 @@ function getGames(schedule: Schedule): Game[] {
 }
 
 function getScheduledGames(games: Game[]) {
+  const league = 'NHL';
   return games
     .filter(({ status: { detailedState } }) => detailedState === 'Scheduled')
     .map(({ gameDate, gamePk, link, status: { detailedState: status } }) => ({
+      league: league,
       game_date: gameDate,
       game_pk: gamePk,
       link,

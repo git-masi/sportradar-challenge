@@ -51,12 +51,12 @@ model teams {
 }
 
 model schedule {
-  leage     String
+  league    String
   game_pk   BigInt
   game_date DateTime @db.Timestamptz(6)
   link      String
   status    String
 
-  @@id([leage, game_pk])
+  @@id([league, game_pk])
   @@schema("app")
 }

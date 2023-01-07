@@ -24,12 +24,12 @@ CREATE TABLE IF NOT EXISTS api.player_stats (
 	PRIMARY KEY(player_id, game_pk)
 );
 CREATE TABLE IF NOT EXISTS app.schedule (
-	leage TEXT NOT NULL,
+	league TEXT NOT NULL,
 	game_pk BIGINT NOT NULL,
 	game_date TIMESTAMPTZ NOT NULL,
 	link TEXT NOT NULL,
 	status TEXT NOT NULL,
-	PRIMARY KEY(leage, game_pk)
+	PRIMARY KEY(league, game_pk)
 );
 -- Init the app role with all privileges
 GRANT USAGE ON SCHEMA api TO app;
