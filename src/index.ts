@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
-import { ScheduleService } from './schedule/index.js';
+import { StartScheduleService } from './schedule/index.js';
 
 const logger = winston.createLogger({
   level: 'info',
@@ -23,4 +23,4 @@ export const ctx: Context = Object.freeze({
   logger,
 });
 
-ScheduleService(ctx);
+StartScheduleService(ctx);
