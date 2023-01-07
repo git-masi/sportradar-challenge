@@ -6,7 +6,7 @@ export async function StartScheduleService(ctx: Context) {
   const jobRequests = [
     {
       name: 'NHL Schedule',
-      cron: '*/10 * * * * *',
+      cron: '0 0 0 * * *', // run once per day at midnight UTC
       fn: wrapper(updateNhlSchedule, ctx),
     },
   ];
