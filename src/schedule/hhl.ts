@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import got from 'got';
-import { AppConfig } from '../index.js';
+import { Context } from '../index.js';
 import { JobRequest } from '../utils/jobs.js';
 
 type Schedule = {
@@ -96,14 +96,14 @@ type ScheduledGame = {
   status: string;
 };
 
-export async function initNhlJob(appConfig: AppConfig): Promise<JobRequest> {
+export async function initNhlJob(ctx: Context): Promise<JobRequest> {
   return {
-    cron: '*/5 * * * * *',
+    cron: '*/10 * * * * *',
     fn: async ({ end }) => {
       try {
-        await run(appConfig);
+        await run(ctx);
       } catch (error) {
-        console.log(error);
+        ctx.logger.error(error);
       } finally {
         end();
       }
@@ -111,11 +111,11 @@ export async function initNhlJob(appConfig: AppConfig): Promise<JobRequest> {
   };
 }
 
-async function run(appConfig: AppConfig) {
+async function run(ctx: Context) {
   const schedule = await fetchSchedule();
   const games = getGames(schedule);
   const scheduledGames = getScheduledGames(games);
-  saveSchedule(scheduledGames, appConfig.prisma);
+  saveSchedule(scheduledGames, ctx.prisma);
 }
 
 async function saveSchedule(

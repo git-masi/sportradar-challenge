@@ -1,9 +1,9 @@
 import { initNhlJob } from './hhl.js';
-import { AppConfig } from '../index.js';
+import { Context } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
 
-export async function ScheduleService(appConfig: AppConfig) {
-  const jobRequests = await Promise.all([initNhlJob(appConfig)]);
+export async function ScheduleService(ctx: Context) {
+  const jobRequests = await Promise.all([initNhlJob(ctx)]);
   const manager = JobManager();
-  jobRequests.forEach((r) => manager.register(r));
+  jobRequests.forEach((req) => manager.register(req));
 }
