@@ -112,8 +112,7 @@ export async function initNhlJob(appConfig: AppConfig): Promise<JobRequest> {
 }
 
 async function run(appConfig: AppConfig) {
-  const date = new Date().toISOString().replace(/T.*/, '');
-  const schedule = await fetchSchedule(appConfig.url, date);
+  const schedule = await fetchSchedule();
   const games = getGames(schedule);
   const scheduledGames = getScheduledGames(games);
   saveSchedule(scheduledGames, appConfig.prisma);
@@ -129,9 +128,9 @@ async function saveSchedule(
   });
 }
 
-function fetchSchedule(url: string, date: string): Promise<Schedule> {
+function fetchSchedule(): Promise<Schedule> {
   return got
-    .get(`${url}/schedule?date=${date}`, {
+    .get('https://statsapi.web.nhl.com/api/v1/schedule', {
       timeout: { request: 20_000 },
       retry: {
         limit: 5,

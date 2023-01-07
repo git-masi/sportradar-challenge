@@ -4,6 +4,6 @@ import { JobManager } from '../utils/jobs.js';
 
 export async function ScheduleService(appConfig: AppConfig) {
   const jobRequests = await Promise.all([initNhlJob(appConfig)]);
-  const manager = JobManager(appConfig.prisma);
+  const manager = JobManager();
   jobRequests.forEach((r) => manager.register(r));
 }

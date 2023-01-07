@@ -1,8 +1,7 @@
 import { CronJob } from 'cron';
-import { PrismaClient } from '@prisma/client';
 import { nanoid } from 'nanoid';
 
-type JobFnParams = { jobId: string; prisma: PrismaClient; end: () => void };
+type JobFnParams = { jobId: string; end: () => void };
 
 type JobFn = (params: JobFnParams) => Promise<void>;
 
@@ -16,7 +15,7 @@ export type JobRequest = {
   fn: JobFn;
 };
 
-export function JobManager(prisma: PrismaClient) {
+export function JobManager() {
   let jobs: ScheduledJob[] = [];
 
   const unregister = (jobId: string) => {
@@ -35,7 +34,7 @@ export function JobManager(prisma: PrismaClient) {
     const id = nanoid(10);
     const job = new CronJob(
       cron,
-      async () => await fn({ jobId: id, prisma, end: () => unregister(id) }),
+      async () => await fn({ jobId: id, end: () => unregister(id) }),
       null,
       true
     );
