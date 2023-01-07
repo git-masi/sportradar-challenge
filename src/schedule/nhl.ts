@@ -89,6 +89,7 @@ type MetaData = {
 };
 
 type ScheduledGame = {
+  league: string;
   game_date: string;
   game_pk: number;
   link: string;
@@ -136,7 +137,7 @@ function getGames(schedule: Schedule): Game[] {
   return schedule.dates[0].games;
 }
 
-function getScheduledGames(games: Game[]) {
+function getScheduledGames(games: Game[]): ScheduledGame[] {
   const league = 'NHL';
   return games
     .filter(({ status: { detailedState } }) => detailedState === 'Scheduled')

@@ -1,6 +1,6 @@
 import { Context } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
-import { updateNhlSchedule } from './hhl.js';
+import { updateNhlSchedule } from './nhl.js';
 
 export async function StartScheduleService(ctx: Context) {
   const jobRequests = [
