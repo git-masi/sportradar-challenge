@@ -96,27 +96,11 @@ type ScheduledGame = {
   status: string;
 };
 
-export async function initNhlJob(ctx: Context): Promise<JobRequest> {
-  return {
-    name: 'NHL Schedule',
-    cron: '*/10 * * * * *',
-    fn: async ({ end }) => {
-      try {
-        await run(ctx);
-      } catch (error) {
-        ctx.logger.error(error);
-      } finally {
-        end();
-      }
-    },
-  };
-}
-
-async function run(ctx: Context) {
+export async function updateNhlSchedule(ctx: Context) {
   const schedule = await fetchSchedule();
   const games = getGames(schedule);
   const scheduledGames = getScheduledGames(games);
-  saveSchedule(scheduledGames, ctx.prisma);
+  await saveSchedule(scheduledGames, ctx.prisma);
 }
 
 async function saveSchedule(
