@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import got from 'got';
 import { Context } from '../index.js';
-import { JobRequest } from '../utils/jobs.js';
 
 type Schedule = {
   copyright: string;
