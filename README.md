@@ -32,8 +32,31 @@ hoisting functions
 
 avoid `this` if at all possible
 
+multiple independent "services"
+
+ports and adaptors/hexagonal/onion
+
+manage side effects
+
+files tope to bottom
+
+types
+low granularity functions
+high granularity functions
+
 ## ADR
 
 ## Testing
 
 small, medium, large
+
+## Types
+
+Defined where they are primarily used
+
+Not all-encompassing
+
+APIs return more data than we need. Types included the minimum data needed
+
+Could use this to generate more comprehensive types
+https://app.quicktype.io/?l=ts
