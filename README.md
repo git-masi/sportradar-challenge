@@ -20,6 +20,10 @@ baseUrl
 http
 requestHttp
 
+## Use prettier for formatting
+
+There are recommended extensions in the .vscode directory
+
 ## Software Design
 
 ## ADR
