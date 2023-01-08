@@ -10,7 +10,15 @@ npx prisma generate
 ## Ubiquitous language
 
 fetch
-post
+
+Abbreviations in code are written in lower camel case.
+
+Examples:
+
+url
+baseUrl
+http
+requestHttp
 
 ## Software Design
 
