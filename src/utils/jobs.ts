@@ -49,7 +49,10 @@ export function JobManager(
       cron,
       async () => await fn({ jobId: id, end: () => unregister(id) }),
       null,
-      true
+      true, // start the job timer immediately upon registration
+      undefined,
+      null,
+      true // run the job callback (called `onTick` in the documentation) immediately upon registration
     );
 
     jobs = [...jobs, { job, id, name }];

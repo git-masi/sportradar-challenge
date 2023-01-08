@@ -26,3 +26,13 @@ export const ctx: Context = Object.freeze({
 
 // StartScheduleService(ctx);
 // StartPlayersService(ctx);
+
+export function errorLogger(fn: Function, ctx: Context) {
+  return async () => {
+    try {
+      await fn(ctx);
+    } catch (error) {
+      ctx.logger.error(error);
+    }
+  };
+}
