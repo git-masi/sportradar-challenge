@@ -22,6 +22,11 @@ export type JobRequest = {
   name: string;
 };
 
+/**
+ * The `JobManager` handles creating, removing, starting, and stopping jobs.
+ * @param info - A function to receive messages and meta data about job status changes.
+ * For example a logger.
+ */
 export function JobManager(
   info?: (msg: string, metaData: JobMetaData) => void
 ) {
