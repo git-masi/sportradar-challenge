@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
-import { StartPlayersService } from './players/index.js';
-import { StartScheduleService } from './schedule/index.js';
-import { StartTeamsService } from './teams/index.js';
+import { startPlayersService } from './players/index.js';
+import { startScheduleService } from './schedule/index.js';
+import { startTeamsService } from './teams/index.js';
 
 // Additional configuration can be added for Datadog or other
 // services in the future
@@ -27,9 +27,9 @@ export const ctx: Context = Object.freeze({
   logger,
 });
 
-// StartTeamsService(ctx);
-// StartScheduleService(ctx);
-// StartPlayersService(ctx);
+// startTeamsService(ctx);
+// startScheduleService(ctx);
+// startPlayersService(ctx);
 
 export function errorLogger(fn: Function, ctx: Context) {
   return async () => {

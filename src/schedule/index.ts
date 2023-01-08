@@ -2,7 +2,7 @@ import { Context } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
 import { updateNhlSchedule } from './nhl.js';
 
-export async function StartScheduleService(ctx: Context) {
+export async function startScheduleService(ctx: Context) {
   const jobRequests = [
     {
       name: 'NHL Schedule',

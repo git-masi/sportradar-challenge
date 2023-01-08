@@ -2,7 +2,7 @@ import { Context, errorLogger } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
 import { updateNhlPlayers } from './nhl.js';
 
-export async function StartPlayersService(ctx: Context) {
+export async function startPlayersService(ctx: Context) {
   const jobRequests = [
     {
       name: 'NHL Players',
