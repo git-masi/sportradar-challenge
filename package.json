@@ -16,6 +16,7 @@
   "dependencies": {
     "@prisma/client": "^4.8.1",
     "cron": "^2.1.0",
+    "date-fns": "^2.29.3",
     "got": "^12.5.3",
     "nanoid": "^4.0.0",
     "winston": "^3.8.2"
