@@ -40,6 +40,15 @@ CREATE TABLE "api"."teams" (
 );
 
 -- CreateTable
+CREATE TABLE "app"."last_play" (
+    "league" TEXT NOT NULL,
+    "game_pk" BIGINT NOT NULL,
+    "last_play" TIMESTAMPTZ(6) NOT NULL,
+
+    CONSTRAINT "last_play_pkey" PRIMARY KEY ("league","game_pk")
+);
+
+-- CreateTable
 CREATE TABLE "app"."schedule" (
     "league" TEXT NOT NULL,
     "game_pk" BIGINT NOT NULL,
@@ -49,6 +58,12 @@ CREATE TABLE "app"."schedule" (
 
     CONSTRAINT "schedule_pkey" PRIMARY KEY ("league","game_pk")
 );
+
+-- CreateIndex
+CREATE INDEX "app_last_play_last_play" ON "app"."last_play"("last_play");
+
+-- CreateIndex
+CREATE INDEX "app_schedule_game_date" ON "app"."schedule"("game_date");
 
 -- AddForeignKey
 ALTER TABLE "api"."player_stats" ADD CONSTRAINT "player_stats_opponent_team_id_fkey" FOREIGN KEY ("opponent_team_id") REFERENCES "api"."teams"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;

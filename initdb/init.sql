@@ -1,5 +1,5 @@
 -- Init enums
-CREATE TYPE league AS ENUM ('NHL');
+CREATE TYPE league_abrv AS ENUM ('NHL');
 -- Init tables
 CREATE TABLE IF NOT EXISTS api.teams (
 	id BIGINT PRIMARY KEY NOT NULL,
@@ -26,7 +26,9 @@ CREATE TABLE IF NOT EXISTS api.player_stats (
 	PRIMARY KEY(player_id, game_pk)
 );
 CREATE TABLE IF NOT EXISTS app.schedule (
-	league league NOT NULL,
+	-- Ideally we would want this to be of type `league_abrv` but prisma v4.8.1 can 't
+	-- introspect the composite key correctly. We can enforce this in application code.
+	league TEXT NOT NULL,
 	game_pk BIGINT NOT NULL,
 	game_date TIMESTAMPTZ NOT NULL,
 	link TEXT NOT NULL,
@@ -34,10 +36,12 @@ CREATE TABLE IF NOT EXISTS app.schedule (
 	PRIMARY KEY(league, game_pk)
 );
 CREATE TABLE IF NOT EXISTS app.last_play (
-	league league NOT NULL,
+	-- Ideally we would want this to be of type `league_abrv` but prisma v4.8.1 can 't
+	-- introspect the composite key correctly. We can enforce this in application code.
+	league TEXT NOT NULL,
 	game_pk BIGINT NOT NULL,
 	last_play TIMESTAMPTZ NOT NULL,
-	PRIMARY KEY(leage, game_pk)
+	PRIMARY KEY(league, game_pk)
 );
 -- Init indexes
 CREATE INDEX app_schedule_game_date ON app.schedule(game_date);

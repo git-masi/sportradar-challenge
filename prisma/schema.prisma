@@ -50,6 +50,16 @@ model teams {
   @@schema("api")
 }
 
+model last_play {
+  league    String
+  game_pk   BigInt
+  last_play DateTime @db.Timestamptz(6)
+
+  @@id([league, game_pk])
+  @@index([last_play], map: "app_last_play_last_play")
+  @@schema("app")
+}
+
 model schedule {
   league    String
   game_pk   BigInt
@@ -58,5 +68,6 @@ model schedule {
   status    String
 
   @@id([league, game_pk])
+  @@index([game_date], map: "app_schedule_game_date")
   @@schema("app")
 }
