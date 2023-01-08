@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { Context } from '../index.js';
-import { fetchJson } from '../utils/httpRequests.js';
+import { fetchJson } from '../utils/http.js';
 
 type Schedule = {
   copyright: string;
