@@ -58,7 +58,7 @@ export function JobManager(
     jobs = [...jobs, { job, id, name }];
 
     if (info instanceof Function) {
-      info('New job registered', { id, name });
+      info('Registered a new job', { id, name });
     }
   };
 
