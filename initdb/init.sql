@@ -7,7 +7,8 @@ CREATE TYPE player_type AS ENUM(
 	'Goalie',
 	'PenaltyOn',
 	'DrewBy'
-) -- Init tables
+);
+-- Init tables
 CREATE TABLE IF NOT EXISTS api.teams (
 	id BIGINT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL
