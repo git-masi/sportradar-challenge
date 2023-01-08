@@ -7,20 +7,10 @@ export async function startScheduleService(ctx: Context) {
     {
       name: 'NHL Schedule',
       cron: '0 0 0 * * *', // run once per day at midnight UTC
-      fn: wrapper(updateNhlSchedule, ctx),
+      fn: () => updateNhlSchedule(ctx),
     },
   ];
-  const manager = JobManager(ctx.logger.info);
+  const manager = JobManager(ctx.logger.info, ctx.logger.error);
 
   jobRequests.forEach((req) => manager.register(req));
-}
-
-function wrapper(fn: Function, ctx: Context) {
-  return async () => {
-    try {
-      await fn(ctx);
-    } catch (error) {
-      ctx.logger.error(error);
-    }
-  };
 }

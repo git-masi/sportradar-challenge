@@ -24,13 +24,31 @@ export type JobRequest = {
 
 /**
  * The `JobManager` handles creating, removing, starting, and stopping jobs.
- * @param info - A function to receive messages and meta data about job status changes.
+ * @param infoHandler - A function to receive messages and meta data about job status changes.
+ * For example a logger.
+ * @param errorHandler - A function to receive messages and meta data about job errors.
  * For example a logger.
  */
 export function JobManager(
-  info?: (msg: string, metaData: JobMetaData) => void
+  infoHandler?: (msg: string, metaData: JobMetaData) => void,
+  errorHandler?: (error: Error, metaData: JobMetaData) => void
 ) {
   let jobs: ScheduledJob[] = [];
+
+  const errorWrapper = (fn: Function, metaData: JobMetaData) => {
+    return async () => {
+      try {
+        await fn();
+      } catch (error) {
+        if (errorHandler instanceof Function) {
+          if (!(error instanceof Error)) {
+            error = new Error('Job error');
+          }
+          errorHandler(error as Error, metaData);
+        }
+      }
+    };
+  };
 
   const unregister = (jobId: string) => {
     const { job, name } = jobs.find(({ id }) => id === jobId) ?? {};
@@ -43,8 +61,8 @@ export function JobManager(
 
     jobs = jobs.filter(({ id }) => id !== jobId);
 
-    if (info instanceof Function && typeof name === 'string') {
-      info('Unregistered job', { id: jobId, name });
+    if (infoHandler instanceof Function && typeof name === 'string') {
+      infoHandler('Unregistered job', { id: jobId, name });
     }
   };
 
@@ -52,7 +70,10 @@ export function JobManager(
     const id = nanoid(10);
     const job = new CronJob(
       cron,
-      async () => await fn({ jobId: id, end: () => unregister(id) }),
+      errorWrapper(() => fn({ jobId: id, end: () => unregister(id) }), {
+        id,
+        name,
+      }),
       null,
       true, // start the job timer immediately upon registration
       undefined,
@@ -62,8 +83,8 @@ export function JobManager(
 
     jobs = [...jobs, { job, id, name }];
 
-    if (info instanceof Function) {
-      info('Registered a new job', { id, name });
+    if (infoHandler instanceof Function) {
+      infoHandler('Registered a new job', { id, name });
     }
   };
 
