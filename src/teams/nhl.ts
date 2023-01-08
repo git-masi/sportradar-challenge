@@ -14,7 +14,6 @@ type Team = {
 export async function updateNhlTeams(ctx: Context) {
   const res = await fetchTeams();
   const teams = getTeams(res);
-  console.log(teams);
 
   await saveTeams(ctx.prisma, teams);
 

@@ -1,5 +1,6 @@
 -- Init enums
 CREATE TYPE league_abrv AS ENUM ('NHL');
+CREATE TYPE detailed_game_status AS ENUM ('Scheduled', 'In Progress', 'Final');
 -- Init tables
 CREATE TABLE IF NOT EXISTS api.teams (
 	id BIGINT PRIMARY KEY NOT NULL,

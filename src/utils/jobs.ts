@@ -22,6 +22,8 @@ export type JobRequest = {
   name: string;
 };
 
+export type RegisterFn = (req: JobRequest) => void;
+
 /**
  * The `JobManager` handles creating, removing, starting, and stopping jobs.
  * @param infoHandler - A function to receive messages and meta data about job status changes.
