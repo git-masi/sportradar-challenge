@@ -47,7 +47,7 @@ type Play = {
   team: Team;
 };
 
-export interface About {
+type About = {
   eventIdx: number;
   eventID: number;
   period: number;
@@ -57,29 +57,29 @@ export interface About {
   periodTimeRemaining: string;
   dateTime: Date;
   goals: Goals;
-}
+};
 
-export interface Goals {
+type Goals = {
   away: number;
   home: number;
-}
+};
 
-export interface PlayerElement {
+type PlayerElement = {
   player: Player;
   playerType: 'Scorer' | 'Assist' | 'Goalie' | 'PenaltyOn' | 'DrewBy';
-}
+};
 
-export interface Player {
+type Player = {
   id: number;
-}
+};
 
-export interface Result {
+type Result = {
   event: 'Goal' | 'Hit' | 'Penalty';
-}
+};
 
-export interface Team {
+type Team = {
   id: number;
-}
+};
 
 export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   const baseUrl = 'https://statsapi.web.nhl.com';
