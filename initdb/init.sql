@@ -1,3 +1,5 @@
+-- Init enums
+CREATE TYPE league AS ENUM ('NHL');
 -- Init tables
 CREATE TABLE IF NOT EXISTS api.teams (
 	id BIGINT PRIMARY KEY NOT NULL,
@@ -24,13 +26,22 @@ CREATE TABLE IF NOT EXISTS api.player_stats (
 	PRIMARY KEY(player_id, game_pk)
 );
 CREATE TABLE IF NOT EXISTS app.schedule (
-	league TEXT NOT NULL,
+	league league NOT NULL,
 	game_pk BIGINT NOT NULL,
 	game_date TIMESTAMPTZ NOT NULL,
 	link TEXT NOT NULL,
 	status TEXT NOT NULL,
 	PRIMARY KEY(league, game_pk)
 );
+CREATE TABLE IF NOT EXISTS app.last_play (
+	league league NOT NULL,
+	game_pk BIGINT NOT NULL,
+	last_play TIMESTAMPTZ NOT NULL,
+	PRIMARY KEY(leage, game_pk)
+);
+-- Init indexes
+CREATE INDEX app_schedule_game_date ON app.schedule(game_date);
+CREATE INDEX app_last_play_last_play ON app.last_play(last_play);
 -- Init the app role with all privileges
 GRANT USAGE ON SCHEMA api TO app;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA api TO app;
