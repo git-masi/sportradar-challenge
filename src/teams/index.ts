@@ -1,6 +1,6 @@
 import { Context, errorLogger } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
-// import { updateNhlPlayers } from './nhl.js';
+// import { updateNhlTeams } from './nhl.js';
 
 export async function StartTeamsService(ctx: Context) {
   const jobRequests = [

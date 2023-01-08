@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import got from 'got';
 import { Context } from '../index.js';
+import { fetchJson } from '../utils/httpRequests.js';
 
 type Roster = {
   teams: TeamData[];
@@ -64,8 +64,9 @@ export async function updateNhlPlayers(ctx: Context) {
 }
 
 function fetchRoster(): Promise<Roster> {
-  return get<Roster>(
-    'https://statsapi.web.nhl.com/api/v1/teams?expand=team.roster'
+  return fetchJson<Roster>(
+    'https://statsapi.web.nhl.com/api/v1/teams?expand=team.roster',
+    { timeout: 20_000, retry: 5 }
   );
 }
 
@@ -81,7 +82,10 @@ function fetchPeople(ids: number[]) {
 }
 
 function fetchPlayer(id: number) {
-  return get<People>(`https://statsapi.web.nhl.com/api/v1/people/${id}`);
+  return fetchJson<People>(`https://statsapi.web.nhl.com/api/v1/people/${id}`, {
+    timeout: 20_000,
+    retry: 5,
+  });
 }
 
 function getPlayers(people: People[]) {
@@ -110,23 +114,4 @@ async function savePlayers(prisma: PrismaClient, players: Player[]) {
     data: players,
     skipDuplicates: true,
   });
-}
-
-function get<T>(url: string): Promise<T> {
-  return got
-    .get(url, {
-      timeout: { request: 20_000 },
-      retry: {
-        limit: 5,
-        errorCodes: [
-          'ETIMEDOUT',
-          'ECONNRESET',
-          'EADDRINUSE',
-          'ECONNREFUSED',
-          'ENETUNREACH',
-          'EAI_AGAIN',
-        ],
-      },
-    })
-    .json();
 }

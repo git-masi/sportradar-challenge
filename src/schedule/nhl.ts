@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
-import got from 'got';
 import { Context } from '../index.js';
+import { fetchJson } from '../utils/httpRequests.js';
 
 type Schedule = {
   copyright: string;
@@ -115,22 +115,10 @@ async function saveSchedule(
 }
 
 function fetchSchedule(): Promise<Schedule> {
-  return got
-    .get('https://statsapi.web.nhl.com/api/v1/schedule', {
-      timeout: { request: 20_000 },
-      retry: {
-        limit: 5,
-        errorCodes: [
-          'ETIMEDOUT',
-          'ECONNRESET',
-          'EADDRINUSE',
-          'ECONNREFUSED',
-          'ENETUNREACH',
-          'EAI_AGAIN',
-        ],
-      },
-    })
-    .json();
+  return fetchJson('https://statsapi.web.nhl.com/api/v1/schedule', {
+    timeout: 20_000,
+    retry: 5,
+  });
 }
 
 function getGames(schedule: Schedule): Game[] {
