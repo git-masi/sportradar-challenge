@@ -1,0 +1,132 @@
+import { PrismaClient } from '@prisma/client';
+import got from 'got';
+import { Context } from '../index.js';
+
+type Roster = {
+  teams: TeamData[];
+};
+
+type TeamData = {
+  id: number;
+  roster: TeamRoster;
+};
+
+type TeamRoster = {
+  roster: RosterMember[];
+};
+
+type RosterMember = {
+  person: {
+    id: number;
+  };
+};
+
+type People = {
+  people: Person[];
+};
+
+type Person = {
+  id: number;
+  fullName: string;
+  primaryNumber: string;
+  currentAge: number;
+  currentTeam: CurrentTeam;
+  primaryPosition: Position;
+};
+
+type CurrentTeam = {
+  id: number;
+};
+
+type Position = {
+  name: string;
+};
+
+type Player = {
+  id: number;
+  name: string;
+  age: number;
+  team_id: number;
+  position: string;
+  number: number;
+};
+
+export async function updateNhlPlayers(ctx: Context) {
+  const test = true;
+  if (test) return;
+
+  const roster = await fetchRoster();
+  const playerIds = getPlayerIds(roster);
+  const pid = [playerIds[0], playerIds[1], playerIds[2]];
+  const people = await fetchPeople(pid);
+  const players = getPlayers(people);
+  savePlayers(ctx.prisma, players);
+}
+
+function fetchRoster(): Promise<Roster> {
+  return get<Roster>(
+    'https://statsapi.web.nhl.com/api/v1/teams?expand=team.roster'
+  );
+}
+
+function getPlayerIds(roster: Roster): number[] {
+  return roster.teams.flatMap((team) =>
+    team.roster.roster.map(({ person: { id } }) => id)
+  );
+}
+
+function fetchPeople(ids: number[]) {
+  const promises = ids.map((id) => fetchPlayer(id));
+  return Promise.all(promises);
+}
+
+function fetchPlayer(id: number) {
+  return get<People>(`https://statsapi.web.nhl.com/api/v1/people/${id}`);
+}
+
+function getPlayers(people: People[]) {
+  return people.map((p) => getPlayerData(getPerson(p)));
+}
+
+function getPerson(p: People) {
+  return p.people[0];
+}
+
+function getPlayerData(person: Person): Player {
+  const {
+    id,
+    fullName: name,
+    currentAge: age,
+    currentTeam: { id: team_id },
+    primaryPosition: { name: position },
+    primaryNumber: number,
+  } = person;
+
+  return { id, name, age, team_id, position, number: Number(number) };
+}
+
+async function savePlayers(prisma: PrismaClient, players: Player[]) {
+  await prisma.players.createMany({
+    data: players,
+    skipDuplicates: true,
+  });
+}
+
+function get<T>(url: string): Promise<T> {
+  return got
+    .get(url, {
+      timeout: { request: 20_000 },
+      retry: {
+        limit: 5,
+        errorCodes: [
+          'ETIMEDOUT',
+          'ECONNRESET',
+          'EADDRINUSE',
+          'ECONNREFUSED',
+          'ENETUNREACH',
+          'EAI_AGAIN',
+        ],
+      },
+    })
+    .json();
+}

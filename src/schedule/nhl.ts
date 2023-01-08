@@ -100,13 +100,13 @@ export async function updateNhlSchedule(ctx: Context) {
   const schedule = await fetchSchedule();
   const games = getGames(schedule);
   const scheduledGames = getScheduledGames(games);
-  await saveSchedule(scheduledGames, ctx.prisma);
+  await saveSchedule(ctx.prisma, scheduledGames);
   ctx.logger.info('Successfully added NHL games to the schedule');
 }
 
 async function saveSchedule(
-  scheduledGames: ScheduledGame[],
-  prisma: PrismaClient
+  prisma: PrismaClient,
+  scheduledGames: ScheduledGame[]
 ) {
   await prisma.schedule.createMany({
     data: scheduledGames,
