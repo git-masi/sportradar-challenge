@@ -2,7 +2,10 @@ import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
 import { StartPlayersService } from './players/index.js';
 import { StartScheduleService } from './schedule/index.js';
+import { StartTeamsService } from './teams/index.js';
 
+// Additional configuration can be added for Datadog or other
+// services in the future
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
@@ -24,6 +27,7 @@ export const ctx: Context = Object.freeze({
   logger,
 });
 
+// StartTeamsService(ctx);
 // StartScheduleService(ctx);
 // StartPlayersService(ctx);
 

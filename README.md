@@ -10,6 +10,7 @@ npx prisma generate
 ## Ubiquitous language
 
 fetch
+save
 
 Abbreviations in code are written in lower camel case.
 
@@ -43,6 +44,8 @@ files tope to bottom
 types
 low granularity functions
 high granularity functions
+
+## Why multiple DB schema?
 
 ## ADR
 

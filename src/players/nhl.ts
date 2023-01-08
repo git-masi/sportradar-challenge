@@ -52,15 +52,15 @@ type Player = {
 };
 
 export async function updateNhlPlayers(ctx: Context) {
-  const test = true;
-  if (test) return;
-
   const roster = await fetchRoster();
   const playerIds = getPlayerIds(roster);
   const pid = [playerIds[0], playerIds[1], playerIds[2]];
   const people = await fetchPeople(pid);
   const players = getPlayers(people);
-  savePlayers(ctx.prisma, players);
+
+  await savePlayers(ctx.prisma, players);
+
+  ctx.logger.info('Successfully saved NHL players');
 }
 
 function fetchRoster(): Promise<Roster> {
