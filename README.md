@@ -26,6 +26,12 @@ There are recommended extensions in the .vscode directory
 
 ## Software Design
 
+functional light, grokking simplicity, Go programming language
+
+hoisting functions
+
+avoid `this` if at all possible
+
 ## ADR
 
 ## Testing
