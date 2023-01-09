@@ -126,3 +126,26 @@ You can use the "stop docker containers and remove local images and volumes" to 
 But as the name suggest this will remove images and volumes similar to `docker compose down --remove-orphans -v`.
 
 If that is not the behavior you want then consider using the standard command: `docker compose down`.
+
+## Fake it
+
+In the absence of a good test harness (for now) there may or may not be any live games to draw data from.
+There is a way to fake it, though note this is a band-aid solution. Better testing is the real solution.
+
+You can add a previously completed game to the schedule using this format:
+
+```sql
+insert into api.schedule(league, game_pk, game_date, link, status)
+values('NHL', 2022020638, '2023-01-08 20:00:00+00', '/api/v1/game/2022020638/feed/live', 'In Progress');
+```
+
+Note the "In Progress" status.
+
+Then in src/stats/nhl.ts add `'Final'` to the `gameStates` array around line 154.
+
+Start the local dev server as described above.
+
+### IMPORTANT NOTE!
+
+This will cause your local server to query the game feed on an infinite loop so once you have some data you should
+shut down the server or revert the changes.
