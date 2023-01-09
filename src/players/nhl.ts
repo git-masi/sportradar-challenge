@@ -54,8 +54,7 @@ type Player = {
 export async function updateNhlPlayers(ctx: Context) {
   const roster = await fetchRoster();
   const playerIds = getPlayerIds(roster);
-  const pid = [playerIds[0], playerIds[1], playerIds[2]];
-  const people = await fetchPeople(pid);
+  const people = await fetchPeople(playerIds);
   const players = getPlayers(people);
 
   await savePlayers(ctx.prisma, players);
