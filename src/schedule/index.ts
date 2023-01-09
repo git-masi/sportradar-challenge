@@ -8,6 +8,7 @@ export async function startScheduleService(ctx: Context) {
       name: 'NHL Schedule',
       cron: '0 0 0 * * *', // run once per day at midnight UTC
       fn: () => updateNhlSchedule(ctx),
+      invokeImmediately: false,
     },
   ];
   const manager = JobManager(ctx.logger.info, ctx.logger.error);
