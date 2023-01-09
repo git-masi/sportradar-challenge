@@ -29,9 +29,14 @@ More on this can be found in the books:
 
 This project consists of a few parts:
 
-- Postgres DB instance (and pgAdmin)
-- PostgREST API (and swagger)
+- Postgres DB instance
+- pgAdmin
+- PostgREST API
+- swagger API
 - TypeScript service to handle cron jobs
+
+PostgREST is the API server and you can make queries to `http://localhost:3000`.
+For more information on how to query using PostgREST see [the docs](https://postgrest.org/en/stable/api.html#tables-and-views).
 
 Initially an alternative architecture was considered consisting of various AWS services.
 The basic idea was to use EventBridge Scheduler to invoke Lambda functions at specified times.
