@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import { Context } from '../index.js';
-import { soon } from '../utils/dates.js';
 import { fetchJson } from '../utils/http.js';
 import { RegisterFn } from '../utils/jobs.js';
 
@@ -192,7 +191,7 @@ async function pollGameStats(config: {
 
     await savePlayerStats(ctx.prisma, playerStatsToUpdate);
 
-    ctx.logger.info(`Continue polling for game: ${gamePk}`);
+    ctx.logger.info(`Continue polling for game: NHL ${gamePk}`);
 
     setTimeout(async () => {
       await pollGameStats({
