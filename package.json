@@ -8,7 +8,9 @@
     "clean": "rm -rf ./dist",
     "build": "tsc",
     "dev:build": "tsc -w",
-    "dev:run": "nodemon ./dist/index.js"
+    "dev:run": "nodemon ./dist/index.js",
+    "prisma:introspect": "npx prisma db pull",
+    "prisma:generate": "npx prisma generate"
   },
   "keywords": [],
   "author": "Eric Masi",

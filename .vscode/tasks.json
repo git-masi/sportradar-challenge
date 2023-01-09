@@ -24,6 +24,37 @@
       }
     },
     {
+      "label": "prisma:introspect",
+      "type": "npm",
+      "script": "prisma:introspect",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "prisma:generate",
+      "type": "npm",
+      "script": "prisma:generate",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new",
+        "showReuseMessage": false,
+        "clear": false
+      }
+    },
+    {
+      "label": "prisma:prisma",
+      "dependsOn": ["prisma:introspect", "prisma:generate"],
+      "dependsOrder": "sequence"
+    },
+    {
       "label": "initial ts build",
       "type": "shell",
       "command": "[ ! -f \"./dist/index.js\" ] && npm run build || echo \"initial ts build complete\"",
