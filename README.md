@@ -46,14 +46,35 @@ The current solution using Docker containers allows for quicker local developmen
 
 As always there are tradeoffs to everything and that above describes the thought processes on making those tradeoffs.
 
-## Prisma stuff
+## Getting started
 
-```sh
-npx prisma db pull
-mkdir -p prisma/migrations/0_init
-npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql
-npx prisma generate
-```
+### Ensure you have the correct version of Node
+
+This project uses an .nvmrc file to note the version of Node required.
+
+### Install packages
+
+`npm i`
+
+### Tasks
+
+There are a number of VS Code tasks which make local development easier. You can find them all in .vscode > tasks.json. Note that there are corresponding CLI commands for all tasks.
+
+You can run a task with the command pallet:
+
+- Use keyboard shortcut: `shift + command + p`
+- Type the following in the command pallet: "Tasks: Run Task"
+- Select task you want to run
+
+### Run local tasks
+
+First run the "start docker containers" task.
+
+This should start the database, pgAdmin, PostgREST API server, and swagger API server.
+
+Once the containers have started run the "dev" task.
+
+This should start local development and you will see logs for services that have started.
 
 ## Ubiquitous language
 
