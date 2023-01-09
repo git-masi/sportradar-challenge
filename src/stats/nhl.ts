@@ -210,39 +210,37 @@ async function savePlayerStats(
   prisma: PrismaClient,
   playerStats: PlayerStats[]
 ) {
-  await prisma.$transaction(async (tx) => {
-    playerStats.forEach(async (data) => {
-      const create = {
-        player_id: data.playerId,
-        game_pk: data.gamePk,
-        player_team_id: data.playerTeamId,
-        opponent_team_id: data.opponentTeamId,
-        assists: data.assists,
-        goals: data.goals,
-        hits: data.hits,
-        points: data.points,
+  playerStats.forEach(async (data) => {
+    const create = {
+      player_id: data.playerId,
+      game_pk: data.gamePk,
+      player_team_id: data.playerTeamId,
+      opponent_team_id: data.opponentTeamId,
+      assists: data.assists,
+      goals: data.goals,
+      hits: data.hits,
+      points: data.points,
+      penalty_minutes: data.penaltyMinutes,
+    };
+    const update = {
+      ...(data.assists > 0 && { assists: data.assists }),
+      ...(data.goals > 0 && { goals: data.goals }),
+      ...(data.hits > 0 && { hits: data.hits }),
+      ...(data.points > 0 && { points: data.points }),
+      ...(data.penaltyMinutes > 0 && {
         penalty_minutes: data.penaltyMinutes,
-      };
-      const update = {
-        ...(data.assists > 0 && { assists: data.assists }),
-        ...(data.goals > 0 && { goals: data.goals }),
-        ...(data.hits > 0 && { hits: data.hits }),
-        ...(data.points > 0 && { points: data.points }),
-        ...(data.penaltyMinutes > 0 && {
-          penalty_minutes: data.penaltyMinutes,
-        }),
-      };
+      }),
+    };
 
-      await tx.player_stats.upsert({
-        where: {
-          player_id_game_pk: {
-            player_id: data.playerId as number,
-            game_pk: data.gamePk,
-          },
+    await prisma.player_stats.upsert({
+      where: {
+        player_id_game_pk: {
+          player_id: data.playerId as number,
+          game_pk: data.gamePk,
         },
-        update: update,
-        create: create,
-      });
+      },
+      update: update,
+      create: create,
     });
   });
 }
