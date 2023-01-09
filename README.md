@@ -1,3 +1,30 @@
+# Sportradar Coding Challenge
+
+## About
+
+This is an implementation of the [Sportradar advanced challenge](https://github.com/sportradarus/sportradar-advanced-challenge).
+
+## Software design philosophy
+
+This project follows a "functional-light" style of JavaScript. That is to say, not pure functional programming but rather bits for "functional thinking" or "functional style".
+
+The project also borrows ideas from onion architecture/ports and adaptors and the Go programming language.
+
+### Key points
+
+- Be mindful of side effects and push them to the edge of the application (e.g. DB queries and API calls)
+- Avoid `this` keyword if possible
+- Use higher order functions instead of classes
+
+This is not a judgement on "OOP" just a preference for functional style and imperative programming.
+
+### Resources
+
+More on this can be found in the books:
+
+- "Grokking Simplicity"
+- "Functional-Light JavaScript"
+
 ## Prisma stuff
 
 ```sh
