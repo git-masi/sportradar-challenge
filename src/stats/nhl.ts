@@ -1,9 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { Context } from '../index.js';
-import { getCurrentDate, soon } from '../utils/dates.js';
+import { soon } from '../utils/dates.js';
 import { fetchJson } from '../utils/http.js';
 import { RegisterFn } from '../utils/jobs.js';
-import { snakeCaseKeys } from '../utils/objects.js';
 
 type GameFeed = {
   gamePk: number;
@@ -105,15 +104,10 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   const baseUrl = 'https://statsapi.web.nhl.com';
   const scheduledGames = await getScheduledGames(ctx.prisma);
 
-  // TODO: Delete after testing
-  const test = true;
-  if (test) return;
-
   scheduledGames.forEach(({ game_date, game_pk, link }) => {
     register({
-      name: `NHL Stats Game:${Number(game_pk)}`,
-      // cron: new Date(game_date),
-      cron: new Date(soon()),
+      name: `NHL Stats Game:${game_pk}`,
+      cron: new Date(game_date),
       fn: ({ end }) =>
         pollGameStats({
           ctx,
@@ -151,44 +145,54 @@ async function pollGameStats(config: {
   const { url, prevScoringPlays, prevPenaltyPlays, prevHitPlays, ctx, end } =
     config;
   try {
-    const data = await fetchJson<GameFeed>(url, { timeout: 0, retry: 0 });
     const gameStates = ['Scheduled', 'In Progress'];
-
-    if (!gameStates.includes(data.gameData.status.detailedState)) {
-      // update game state
-      end();
-      return;
-    }
-
+    const data = await fetchJson<GameFeed>(url, { timeout: 0, retry: 0 });
     const {
       gamePk,
-      gameData: { teams },
+      gameData: {
+        teams,
+        status: { detailedState },
+      },
       liveData: {
         plays: { scoringPlays, penaltyPlays, allPlays },
       },
     } = data;
 
+    if (!gameStates.includes(detailedState)) {
+      await saveGameStatusFinal(ctx.prisma, gamePk);
+      ctx.logger.info(`Game ${gamePk} ended`);
+      end();
+      return;
+    }
+
+    // Get all scoring plays since last run
     const scoringPlaysDiff = getPlayDiff(prevScoringPlays, scoringPlays);
     const scoringPlayValues = getValuesByIndexes(scoringPlaysDiff, allPlays);
     const scoringPlayers = getScoringPlayers(scoringPlayValues, teams);
 
+    // Get all penalty plays since last run
     const penaltyPlaysDiff = getPlayDiff(prevPenaltyPlays, penaltyPlays);
     const penaltyPlayValues = getValuesByIndexes(penaltyPlaysDiff, allPlays);
     const penalizedPlayers = getPenalizedPlayers(penaltyPlayValues, teams);
 
+    // Get all hit plays since last run
     const hitPlayIndexes = getNewHitPlayIndexes(prevHitPlays, allPlays);
     const hitPlayValues = getValuesByIndexes(hitPlayIndexes, allPlays);
     const hitters = getHitters(hitPlayValues, teams);
 
-    const playersToBeUpdated = [
+    // Add `gamePk` to all plays
+    const allPlayerStats = [
       ...scoringPlayers,
       ...penalizedPlayers,
       ...hitters,
     ].map((data) => ({ ...data, gamePk }));
 
-    console.log(playersToBeUpdated);
+    // Merge data into a single set of stats per player
+    const playerStatsToUpdate = mergePlayerStats(allPlayerStats);
 
-    await savePlayerStats(ctx.prisma, playersToBeUpdated);
+    await savePlayerStats(ctx.prisma, playerStatsToUpdate);
+
+    ctx.logger.info(`Continue polling for game: ${gamePk}`);
 
     setTimeout(async () => {
       await pollGameStats({
@@ -196,7 +200,7 @@ async function pollGameStats(config: {
         url,
         prevScoringPlays: scoringPlaysDiff,
         prevPenaltyPlays: penaltyPlaysDiff,
-        prevHitPlays: [],
+        prevHitPlays: hitPlayIndexes,
         end,
       });
     }, 10_000);
@@ -242,6 +246,20 @@ async function savePlayerStats(
       update: update,
       create: create,
     });
+  });
+}
+
+async function saveGameStatusFinal(prisma: PrismaClient, gamePk: number) {
+  prisma.schedule.update({
+    where: {
+      league_game_pk: {
+        league: 'NHL',
+        game_pk: gamePk,
+      },
+    },
+    data: {
+      status: 'Final',
+    },
   });
 }
 
@@ -337,6 +355,30 @@ function getNewHitPlayIndexes(prevHitPlays: number[], allPlays: Play[]) {
   }
 
   return newHitPlayIndexes;
+}
+
+function mergePlayerStats(stats: PlayerStats[]) {
+  const seen: { [k: string]: any } = {};
+
+  for (let player of stats) {
+    if (player.playerId in seen) {
+      const { goals, points, assists, hits, penaltyMinutes } =
+        seen[player.playerId];
+      const newValues = {
+        goals: goals + player.goals,
+        points: points + player.points,
+        assists: assists + player.assists,
+        hits: hits + player.assists,
+        penaltyMinutes: penaltyMinutes + player.penaltyMinutes,
+        ...seen[player.playerId],
+      };
+      seen[player.playerId] = newValues;
+    } else {
+      seen[player.playerId] = player;
+    }
+  }
+
+  return Object.values(seen) as PlayerStats[];
 }
 
 function getPlayDiff(prev: number[], curr: number[]) {
