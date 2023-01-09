@@ -113,6 +113,13 @@ Once the containers have started run the "dev" task.
 
 This should start local development and you will see logs for services that have started.
 
+Note: you may see an error and nodemon may restart the server. But functionality should not be effected.
+
+Once the local server as started you can visit [the teams endpoint](http://localhost:3000/teams) in the browser and see the results.
+More information on querying the API server can be found in the PostgREST section of the README.
+
+To get a list of all endpoints you can visit [the swagger api](http://localhost:8080/) that autogenerates.
+
 ### Stopping containers
 
 You can use the "stop docker containers and remove local images and volumes" to stop the Docker containers.
