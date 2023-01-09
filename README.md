@@ -87,7 +87,7 @@ As mentioned perviously everything has tradeoffs and speed trumps comprehensiven
 
 ### Environment variables
 
-You need a `.env` file for the project to work. Here is an example with all the required fields to get started.
+You need to create a `.env` file for the project to work. Here is an example with all the required fields to get started.
 You should add your own password wherever you see `<YOUR_PASSWORD_HERE>`.
 
 ```
@@ -114,7 +114,7 @@ PGADMIN_LISTEN_PORT=5050
 APP_DATABASE_URL=postgresql://${APP_ROLE}:${APP_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?schema=${API_SCHEMA}
 ```
 
-## IMPORTANT NOTE!
+### IMPORTANT NOTE!
 
 You should never commit passwords to version control!
 
