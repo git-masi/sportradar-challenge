@@ -116,11 +116,11 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
       cron: new Date(soon()),
       fn: ({ end }) =>
         pollGameStats({
+          ctx,
           url: `${baseUrl}${link}`,
           prevScoringPlays: [],
           prevPenaltyPlays: [],
           prevHitPlays: [],
-          prisma: ctx.prisma,
           end,
         }),
       invokeImmediately: false,
@@ -141,64 +141,69 @@ async function getScheduledGames(prisma: PrismaClient) {
 }
 
 async function pollGameStats(config: {
+  ctx: Context;
   url: string;
   prevScoringPlays: number[];
   prevPenaltyPlays: number[];
   prevHitPlays: number[];
-  prisma: PrismaClient;
   end: () => void;
 }) {
-  const { url, prevScoringPlays, prevPenaltyPlays, prevHitPlays, prisma, end } =
+  const { url, prevScoringPlays, prevPenaltyPlays, prevHitPlays, ctx, end } =
     config;
-  const data = await fetchJson<GameFeed>(url, { timeout: 0, retry: 0 });
-  const gameStates = ['Scheduled', 'In Progress'];
+  try {
+    const data = await fetchJson<GameFeed>(url, { timeout: 0, retry: 0 });
+    const gameStates = ['Scheduled', 'In Progress'];
 
-  if (!gameStates.includes(data.gameData.status.detailedState)) {
-    // update game state
+    if (!gameStates.includes(data.gameData.status.detailedState)) {
+      // update game state
+      end();
+      return;
+    }
+
+    const {
+      gamePk,
+      gameData: { teams },
+      liveData: {
+        plays: { scoringPlays, penaltyPlays, allPlays },
+      },
+    } = data;
+
+    const scoringPlaysDiff = getPlayDiff(prevScoringPlays, scoringPlays);
+    const scoringPlayValues = getValuesByIndexes(scoringPlaysDiff, allPlays);
+    const scoringPlayers = getScoringPlayers(scoringPlayValues, teams);
+
+    const penaltyPlaysDiff = getPlayDiff(prevPenaltyPlays, penaltyPlays);
+    const penaltyPlayValues = getValuesByIndexes(penaltyPlaysDiff, allPlays);
+    const penalizedPlayers = getPenalizedPlayers(penaltyPlayValues, teams);
+
+    const hitPlayIndexes = getNewHitPlayIndexes(prevHitPlays, allPlays);
+    const hitPlayValues = getValuesByIndexes(hitPlayIndexes, allPlays);
+    const hitters = getHitters(hitPlayValues, teams);
+
+    const playersToBeUpdated = [
+      ...scoringPlayers,
+      ...penalizedPlayers,
+      ...hitters,
+    ].map((data) => ({ ...data, gamePk }));
+
+    console.log(playersToBeUpdated);
+
+    await savePlayerStats(ctx.prisma, playersToBeUpdated);
+
+    setTimeout(async () => {
+      await pollGameStats({
+        ctx,
+        url,
+        prevScoringPlays: scoringPlaysDiff,
+        prevPenaltyPlays: penaltyPlaysDiff,
+        prevHitPlays: [],
+        end,
+      });
+    }, 10_000);
+  } catch (error) {
+    ctx.logger.error(error);
     end();
-    return;
   }
-
-  const {
-    gamePk,
-    gameData: { teams },
-    liveData: {
-      plays: { scoringPlays, penaltyPlays, allPlays },
-    },
-  } = data;
-
-  const scoringPlaysDiff = getPlayDiff(prevScoringPlays, scoringPlays);
-  const scoringPlayValues = getValuesByIndexes(scoringPlaysDiff, allPlays);
-  const scoringPlayers = getScoringPlayers(scoringPlayValues, teams);
-
-  const penaltyPlaysDiff = getPlayDiff(prevPenaltyPlays, penaltyPlays);
-  const penaltyPlayValues = getValuesByIndexes(penaltyPlaysDiff, allPlays);
-  const penalizedPlayers = getPenalizedPlayers(penaltyPlayValues, teams);
-
-  const hitPlayIndexes = getNewHitPlayIndexes(prevHitPlays, allPlays);
-  const hitPlayValues = getValuesByIndexes(hitPlayIndexes, allPlays);
-  const hitters = getHitters(hitPlayValues, teams);
-
-  const playersToBeUpdated = [
-    ...scoringPlayers,
-    ...penalizedPlayers,
-    ...hitters,
-  ].map((data) => ({ ...data, gamePk }));
-
-  console.log(playersToBeUpdated);
-
-  await savePlayerStats(prisma, playersToBeUpdated);
-
-  setTimeout(async () => {
-    await pollGameStats({
-      url,
-      prevScoringPlays: scoringPlaysDiff,
-      prevPenaltyPlays: penaltyPlaysDiff,
-      prevHitPlays: [],
-      prisma,
-      end,
-    });
-  }, 10_000);
 }
 
 async function savePlayerStats(
@@ -288,7 +293,7 @@ function getPenalizedPlayers(plays: Play[], teams: Teams) {
           points: 0,
           assists: 0,
           hits: 0,
-          penaltyMinutes,
+          penaltyMinutes: penaltyMinutes as number,
         },
       ];
     }
