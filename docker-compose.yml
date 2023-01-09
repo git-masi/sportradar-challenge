@@ -43,7 +43,7 @@ services:
     ports:
       - '5050:5050'
 
-  postgrest:
+  sportradar-postgrest:
     container_name: sportradar-postgrest
     image: postgrest/postgrest:latest
     restart: 'on-failure'
@@ -58,13 +58,24 @@ services:
       # https://www.postgresql.org/docs/current/static/libpq-connect.html#LIBPQ-CONNSTRING
       - PGRST_DB_URI=postgres://${POSTGREST_ROLE}:${POSTGREST_PASSWORD}@sportradar-db:5432/${POSTGRES_DB}
       # The name of which database schema to expose to REST clients
-      - PGRST_DB_SCHEMA=${DB_SCHEMA}
+      - PGRST_DB_SCHEMA=${API_SCHEMA}
       # The database role to use when no client authentication is provided
       - PGRST_DB_ANON_ROLE=${DB_ANON_ROLE}
       # Overrides the base URL used within the OpenAPI self-documentation hosted at the API root path
-      # - PGRST_OPENAPI_SERVER_PROXY_URI=http://localhost:3000
+      - PGRST_OPENAPI_SERVER_PROXY_URI=http://localhost:3000
     networks:
       - sportradar-network
+
+  swagger-ui:
+    container_name: sportradar-swagger-ui
+    image: swaggerapi/swagger-ui:latest
+    restart: 'on-failure'
+    depends_on:
+      - sportradar-postgrest
+    ports:
+      - '8080:8080'
+    environment:
+      - API_URL=http://localhost:3000/
 
 volumes:
   sportradar_db_data:
