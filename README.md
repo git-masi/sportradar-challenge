@@ -10,6 +10,12 @@ This project follows a "functional-light" style of JavaScript. That is to say, n
 
 The project also borrows ideas from onion architecture/ports and adaptors and the Go programming language.
 
+You will note that this project makes use of function "hoisting". This can be somewhat controversial but note that in general files follow this structure:
+
+- types
+- most important function or functions (example: entry points into a service)
+- implementation details
+
 ### Key points
 
 - Be mindful of side effects and push them to the edge of the application (e.g. DB queries and API calls)
@@ -81,59 +87,13 @@ Once the containers have started run the "dev" task.
 
 This should start local development and you will see logs for services that have started.
 
-## Ubiquitous language
+## A note on TypeScript types
 
-fetch
-save
+As a matter of preferences types are defined where they are primarily used.
 
-Abbreviations in code are written in lower camel case.
+Most of the types are note meant to be all-encompassing. Consider that fact that the APIs return more data than needed.
+Often the types in this project will contain the minimum data needed to save time/space. This is a design choice.
 
-Examples:
+Also note that many of the times were generated [using this service](https://app.quicktype.io/?l=ts) to help speed up development.
 
-url
-baseUrl
-http
-requestHttp
-
-## Use prettier for formatting
-
-There are recommended extensions in the .vscode directory
-
-## Software Design
-
-functional light, grokking simplicity, Go programming language
-
-hoisting functions
-
-avoid `this` if at all possible
-
-multiple independent "services"
-
-ports and adaptors/hexagonal/onion
-
-manage side effects
-
-files tope to bottom
-
-types
-low granularity functions
-high granularity functions
-
-## Why multiple DB schema?
-
-## ADR
-
-## Testing
-
-small, medium, large
-
-## Types
-
-Defined where they are primarily used
-
-Not all-encompassing
-
-APIs return more data than we need. Types included the minimum data needed
-
-Could use this to generate more comprehensive types
-https://app.quicktype.io/?l=ts
+As mentioned perviously everything has tradeoffs and speed trumps comprehensiveness in this case.
