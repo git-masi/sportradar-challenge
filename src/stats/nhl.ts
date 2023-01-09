@@ -3,6 +3,7 @@ import { Context } from '../index.js';
 import { getCurrentDate, soon } from '../utils/dates.js';
 import { fetchJson } from '../utils/http.js';
 import { RegisterFn } from '../utils/jobs.js';
+import { snakeCaseKeys } from '../utils/objects.js';
 
 type GameFeed = {
   gamePk: number;
@@ -86,6 +87,18 @@ type Result = {
 
 type Team = {
   id: number;
+};
+
+type PlayerStats = {
+  gamePk: number;
+  playerTeamId: number;
+  opponentTeamId: number;
+  playerId: number;
+  goals: number;
+  points: number;
+  assists: number;
+  hits: number;
+  penaltyMinutes: number;
 };
 
 export async function updateNhlStats(ctx: Context, register: RegisterFn) {
@@ -174,6 +187,8 @@ async function pollGameStats(config: {
 
   console.log(playersToBeUpdated);
 
+  await savePlayerStats(prisma, playersToBeUpdated);
+
   setTimeout(async () => {
     await pollGameStats({
       url,
@@ -186,6 +201,47 @@ async function pollGameStats(config: {
   }, 10_000);
 }
 
+async function savePlayerStats(
+  prisma: PrismaClient,
+  playerStats: PlayerStats[]
+) {
+  await prisma.$transaction(async (tx) => {
+    playerStats.forEach(async (data) => {
+      const create = {
+        player_id: data.playerId,
+        game_pk: data.gamePk,
+        player_team_id: data.playerTeamId,
+        opponent_team_id: data.opponentTeamId,
+        assists: data.assists,
+        goals: data.goals,
+        hits: data.hits,
+        points: data.points,
+        penalty_minutes: data.penaltyMinutes,
+      };
+      const update = {
+        ...(data.assists > 0 && { assists: data.assists }),
+        ...(data.goals > 0 && { goals: data.goals }),
+        ...(data.hits > 0 && { hits: data.hits }),
+        ...(data.points > 0 && { points: data.points }),
+        ...(data.penaltyMinutes > 0 && {
+          penalty_minutes: data.penaltyMinutes,
+        }),
+      };
+
+      await tx.player_stats.upsert({
+        where: {
+          player_id_game_pk: {
+            player_id: data.playerId as number,
+            game_pk: data.gamePk,
+          },
+        },
+        update: update,
+        create: create,
+      });
+    });
+  });
+}
+
 function getScoringPlayers(plays: Play[], teams: Teams) {
   return plays.flatMap(({ players, team: { id: playerTeamId } }) => {
     const scoringPlayer = getScoringPlayer(players);
@@ -196,7 +252,7 @@ function getScoringPlayers(plays: Play[], teams: Teams) {
       {
         playerTeamId,
         opponentTeamId,
-        playerId: scoringPlayer?.player.id,
+        playerId: scoringPlayer.player.id,
         goals: 1,
         points: 1,
         assists: 0,
@@ -227,7 +283,7 @@ function getPenalizedPlayers(plays: Play[], teams: Teams) {
         {
           playerTeamId,
           opponentTeamId,
-          playerId: penalizedPlayer?.player.id,
+          playerId: penalizedPlayer.player.id,
           goals: 0,
           points: 0,
           assists: 0,
@@ -248,7 +304,7 @@ function getHitters(plays: Play[], teams: Teams) {
       {
         playerTeamId,
         opponentTeamId,
-        playerId: hitter?.player.id,
+        playerId: hitter.player.id,
         goals: 0,
         points: 0,
         assists: 0,
@@ -297,7 +353,9 @@ function getOpponentTeam(playerTeamId: number, teams: Teams) {
 }
 
 function getScoringPlayer(players: PlayerElement[]) {
-  return players.find((player) => player.playerType === 'Scorer');
+  return players.find(
+    (player) => player.playerType === 'Scorer'
+  ) as PlayerElement;
 }
 
 function getAssistingPlayers(players: PlayerElement[]) {
@@ -305,9 +363,13 @@ function getAssistingPlayers(players: PlayerElement[]) {
 }
 
 function getPenalizedPlayer(players: PlayerElement[]) {
-  return players.find((player) => player.playerType === 'PenaltyOn');
+  return players.find(
+    (player) => player.playerType === 'PenaltyOn'
+  ) as PlayerElement;
 }
 
 function getHitter(players: PlayerElement[]) {
-  return players.find((player) => player.playerType === 'Hitter');
+  return players.find(
+    (player) => player.playerType === 'Hitter'
+  ) as PlayerElement;
 }

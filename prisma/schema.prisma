@@ -10,15 +10,15 @@ datasource db {
 }
 
 model player_stats {
-  player_id                                  BigInt
-  game_pk                                    BigInt
-  player_team_id                             BigInt
-  opponent_team_id                           BigInt
+  player_id                                  Int
+  game_pk                                    Int
+  player_team_id                             Int
+  opponent_team_id                           Int
   assists                                    Int     @db.SmallInt
   goals                                      Int     @db.SmallInt
   hits                                       Int     @db.SmallInt
   points                                     Int     @db.SmallInt
-  penality_minutes                           Int     @db.SmallInt
+  penalty_minutes                            Int     @db.SmallInt
   teams_player_stats_opponent_team_idToteams teams   @relation("player_stats_opponent_team_idToteams", fields: [opponent_team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   players                                    players @relation(fields: [player_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teams_player_stats_player_team_idToteams   teams   @relation("player_stats_player_team_idToteams", fields: [player_team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -28,8 +28,8 @@ model player_stats {
 }
 
 model players {
-  id           BigInt         @id
-  team_id      BigInt
+  id           Int            @id
+  team_id      Int
   name         String
   age          Int            @db.SmallInt
   number       Int            @db.SmallInt
@@ -41,7 +41,7 @@ model players {
 }
 
 model teams {
-  id                                                BigInt         @id
+  id                                                Int            @id
   name                                              String
   player_stats_player_stats_opponent_team_idToteams player_stats[] @relation("player_stats_opponent_team_idToteams")
   player_stats_player_stats_player_team_idToteams   player_stats[] @relation("player_stats_player_team_idToteams")
@@ -52,7 +52,7 @@ model teams {
 
 model last_play {
   league    String
-  game_pk   BigInt
+  game_pk   Int
   last_play DateTime @db.Timestamptz(6)
 
   @@id([league, game_pk])
@@ -62,7 +62,7 @@ model last_play {
 
 model schedule {
   league    String
-  game_pk   BigInt
+  game_pk   Int
   game_date DateTime @db.Timestamptz(6)
   link      String
   status    String

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS api.player_stats (
 	goals SMALLINT NOT NULL,
 	hits SMALLINT NOT NULL,
 	points SMALLINT NOT NULL,
-	penality_minutes SMALLINT NOT NULL,
+	penalty_minutes SMALLINT NOT NULL,
 	PRIMARY KEY(player_id, game_pk)
 );
 CREATE TABLE IF NOT EXISTS app.schedule (

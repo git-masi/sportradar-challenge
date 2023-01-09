@@ -31,4 +31,4 @@ export const ctx: Context = Object.freeze({
 // startTeamsService(ctx);
 // startScheduleService(ctx);
 // startPlayersService(ctx);
-startStatsService(ctx);
+// startStatsService(ctx);
