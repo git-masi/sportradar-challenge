@@ -90,8 +90,8 @@ As mentioned perviously everything has tradeoffs and speed trumps comprehensiven
 You need to create a `.env` file for the project to work. Here is an example with all the required fields to get started.
 You should add your own password wherever you see `<YOUR_PASSWORD_HERE>`.
 
-```
-POSTGRES_USER=postgres
+```sh
+echo "POSTGRES_USER=postgres
 POSTGRES_PASSWORD=<YOUR_PASSWORD_HERE>
 POSTGRES_DB=postgres
 POSTGRES_HOST=localhost
@@ -111,7 +111,7 @@ PGADMIN_DEFAULT_EMAIL=root@root.com
 PGADMIN_DEFAULT_PASSWORD=<YOUR_PASSWORD_HERE>
 PGADMIN_LISTEN_PORT=5050
 
-APP_DATABASE_URL=postgresql://${APP_ROLE}:${APP_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}?schema=${API_SCHEMA}
+APP_DATABASE_URL=postgresql://\${APP_ROLE}:\${APP_PASSWORD}@\${POSTGRES_HOST}:5432/\${POSTGRES_DB}?schema=\${API_SCHEMA}" > .env
 ```
 
 ### IMPORTANT NOTE!
