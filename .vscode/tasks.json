@@ -50,7 +50,7 @@
       }
     },
     {
-      "label": "prisma:prisma",
+      "label": "prisma:tasks",
       "dependsOn": ["prisma:introspect", "prisma:generate"],
       "dependsOrder": "sequence"
     },
@@ -94,7 +94,7 @@
     },
     {
       "label": "dev",
-      "dependsOn": ["initial ts build", "dev:tasks"],
+      "dependsOn": ["initial ts build", "prisma:tasks", "dev:tasks"],
       "dependsOrder": "sequence"
     }
   ]
