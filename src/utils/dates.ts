@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { add, format } from 'date-fns';
 
 /**
  * A simple abstraction for getting the current date as a formatted string.
@@ -8,4 +8,8 @@ export function getCurrentDate(options?: { iso?: boolean; format?: string }) {
   return options && options?.iso
     ? new Date().toISOString()
     : format(new Date(), options?.format ?? 'yyyy-MM-dd');
+}
+
+export function soon() {
+  return add(new Date(), { seconds: 6 }).toISOString();
 }

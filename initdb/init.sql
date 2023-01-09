@@ -10,22 +10,22 @@ CREATE TYPE player_type AS ENUM(
 );
 -- Init tables
 CREATE TABLE IF NOT EXISTS api.teams (
-	id BIGINT PRIMARY KEY NOT NULL,
+	id INT PRIMARY KEY NOT NULL,
 	name TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS api.players (
-	id BIGINT PRIMARY KEY NOT NULL,
-	team_id BIGINT NOT NULL REFERENCES api.teams(id),
+	id INT PRIMARY KEY NOT NULL,
+	team_id INT NOT NULL REFERENCES api.teams(id),
 	name TEXT NOT NULL,
 	age SMALLINT NOT NULL,
 	number SMALLINT NOT NULL,
 	position TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS api.player_stats (
-	player_id BIGINT NOT NULL REFERENCES api.players(id),
-	game_pk BIGINT NOT NULL,
-	player_team_id BIGINT NOT NULL REFERENCES api.teams(id),
-	opponent_team_id BIGINT NOT NULL REFERENCES api.teams(id),
+	player_id INT NOT NULL REFERENCES api.players(id),
+	game_pk INT NOT NULL,
+	player_team_id INT NOT NULL REFERENCES api.teams(id),
+	opponent_team_id INT NOT NULL REFERENCES api.teams(id),
 	assists SMALLINT NOT NULL,
 	goals SMALLINT NOT NULL,
 	hits SMALLINT NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS app.schedule (
 	-- Ideally we would want this to be of type `league_abrv` but prisma v4.8.1 can 't
 	-- introspect the composite key correctly. We can enforce this in application code.
 	league TEXT NOT NULL,
-	game_pk BIGINT NOT NULL,
+	game_pk INT NOT NULL,
 	game_date TIMESTAMPTZ NOT NULL,
 	link TEXT NOT NULL,
 	status TEXT NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS app.last_play (
 	-- Ideally we would want this to be of type `league_abrv` but prisma v4.8.1 can 't
 	-- introspect the composite key correctly. We can enforce this in application code.
 	league TEXT NOT NULL,
-	game_pk BIGINT NOT NULL,
+	game_pk INT NOT NULL,
 	last_play TIMESTAMPTZ NOT NULL,
 	PRIMARY KEY(league, game_pk)
 );

@@ -20,6 +20,7 @@ export type JobRequest = {
   cron: string | Date;
   fn: JobFn;
   name: string;
+  invokeImmediately?: boolean;
 };
 
 export type RegisterFn = (req: JobRequest) => void;
@@ -37,21 +38,6 @@ export function JobManager(
 ) {
   let jobs: ScheduledJob[] = [];
 
-  const errorWrapper = (fn: Function, metaData: JobMetaData) => {
-    return async () => {
-      try {
-        await fn();
-      } catch (error) {
-        if (errorHandler instanceof Function) {
-          if (!(error instanceof Error)) {
-            error = new Error('Job error');
-          }
-          errorHandler(error as Error, metaData);
-        }
-      }
-    };
-  };
-
   const unregister = (jobId: string) => {
     const { job, name } = jobs.find(({ id }) => id === jobId) ?? {};
 
@@ -68,7 +54,29 @@ export function JobManager(
     }
   };
 
-  const register = ({ cron, fn, name }: JobRequest) => {
+  const errorWrapper = (fn: Function, metaData: JobMetaData) => {
+    return async () => {
+      try {
+        await fn();
+      } catch (error) {
+        if (errorHandler instanceof Function) {
+          if (!(error instanceof Error)) {
+            error = new Error('Job error');
+          }
+          errorHandler(error as Error, metaData);
+        }
+
+        unregister(metaData.id);
+      }
+    };
+  };
+
+  const register = ({
+    cron,
+    fn,
+    name,
+    invokeImmediately = true,
+  }: JobRequest) => {
     const id = nanoid(10);
     const job = new CronJob(
       cron,
@@ -77,10 +85,12 @@ export function JobManager(
         name,
       }),
       null,
-      true, // start the job timer immediately upon registration
+      // start the job timer immediately upon registration
+      true,
       undefined,
       null,
-      true // run the job callback (called `onTick` in the documentation) immediately upon registration
+      // Run the job callback (called `onTick` in the documentation) immediately upon registration
+      invokeImmediately
     );
 
     jobs = [...jobs, { job, id, name }];

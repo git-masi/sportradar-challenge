@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { Context } from '../index.js';
-import { getCurrentDate } from '../utils/dates.js';
+import { getCurrentDate, soon } from '../utils/dates.js';
 import { fetchJson } from '../utils/http.js';
 import { RegisterFn } from '../utils/jobs.js';
 
@@ -26,8 +26,8 @@ type Status = {
 };
 
 type Teams = {
-  away: {};
-  home: {};
+  away: Team;
+  home: Team;
 };
 
 type LiveData = {
@@ -85,8 +85,7 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   const baseUrl = 'https://statsapi.web.nhl.com';
   const scheduledGames = await getScheduledGames(ctx.prisma);
 
-  console.log(scheduledGames.map((game) => game.status));
-
+  // TODO: Delete after testing
   const test = true;
   if (test) return;
 
@@ -101,6 +100,7 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
           prevPenaltyPlays: [],
           end,
         }),
+      invokeImmediately: false,
     });
   });
 
@@ -110,8 +110,8 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
 async function getScheduledGames(prisma: PrismaClient) {
   return await prisma.schedule.findMany({
     where: {
-      game_date: {
-        gt: getCurrentDate({ iso: true }),
+      status: {
+        in: ['Scheduled', 'In Progress'],
       },
     },
   });
@@ -127,10 +127,12 @@ async function pollGameStats(config: {
   const data = await fetchJson<GameFeed>(url, { timeout: 0, retry: 0 });
   const gameStates = ['Scheduled', 'In Progress'];
   if (!gameStates.includes(data.gameData.status.detailedState)) {
+    // update game state
     end();
     return;
   }
 
+  const { teams } = data.gameData;
   const { scoringPlays, penaltyPlays, allPlays } = data.liveData.plays;
 
   const sp = getPlayDiff(prevScoringPlays, scoringPlays);
@@ -138,8 +140,7 @@ async function pollGameStats(config: {
   const spvals = getValsByIndexes(sp, allPlays);
   const ppvals = getValsByIndexes(pp, allPlays);
 
-  console.log(spvals);
-  console.log(ppvals);
+  const scoringPlayers = getScoringPlayers(spvals, teams);
 
   setTimeout(async () => {
     await pollGameStats({
@@ -157,4 +158,43 @@ function getPlayDiff(prev: number[], curr: number[]) {
 
 function getValsByIndexes<T>(indexes: number[], arr: T[]) {
   return indexes.map((idx) => arr[idx]);
+}
+
+function getScoringPlayers(plays: Play[], teams: Teams) {
+  return plays.flatMap(({ players, team: { id: playerTeamId } }) => {
+    const scoringPlayer = getScoringPlayer(players);
+    const assistingPlayers = getAssistingPlayers(players);
+    const opponentTeamId = getOpponentTeam(playerTeamId, teams);
+
+    return [
+      {
+        playerTeamId,
+        opponentTeamId,
+        playerId: scoringPlayer?.player.id,
+        playerType: scoringPlayer?.playerType,
+      },
+      ...assistingPlayers.map((player) => ({
+        playerTeamId,
+        opponentTeamId,
+        playerId: player.player.id,
+        playerType: player.playerType,
+      })),
+    ];
+  });
+}
+
+function getOpponentTeam(playerTeamId: number, teams: Teams) {
+  const {
+    away: { id: awayTeamId },
+    home: { id: homeTeamId },
+  } = teams;
+  return playerTeamId === homeTeamId ? awayTeamId : homeTeamId;
+}
+
+function getScoringPlayer(players: PlayerElement[]) {
+  return players.find((player) => player.playerType === 'Scorer');
+}
+
+function getAssistingPlayers(players: PlayerElement[]) {
+  return players.filter((player) => player.playerType === 'Assist');
 }
