@@ -46,6 +46,13 @@ CREATE TABLE IF NOT EXISTS api.schedule (
 );
 -- Init indexes
 CREATE INDEX app_schedule_game_date ON api.schedule(status);
+-- Init the app role with all privileges
+GRANT USAGE ON SCHEMA api TO app;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA api TO app;
+GRANT ALL ON ALL TABLES IN SCHEMA api TO app;
+GRANT USAGE ON SCHEMA app TO app;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA app TO app;
+GRANT ALL ON ALL TABLES IN SCHEMA app TO app;
 -- Notify PostgREST of changes
 NOTIFY pgrst,
 'reload config';
