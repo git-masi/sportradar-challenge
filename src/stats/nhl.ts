@@ -75,6 +75,7 @@ type Player = {
 
 type Result = {
   event: 'Goal' | 'Hit' | 'Penalty';
+  penaltyMinutes?: number;
 };
 
 type Team = {
@@ -86,18 +87,20 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   const scheduledGames = await getScheduledGames(ctx.prisma);
 
   // TODO: Delete after testing
-  const test = true;
-  if (test) return;
+  // const test = true;
+  // if (test) return;
 
   scheduledGames.forEach(({ game_date, game_pk, link }) => {
     register({
       name: `NHL Stats Game:${Number(game_pk)}`,
-      cron: new Date(game_date),
+      // cron: new Date(game_date),
+      cron: new Date(soon()),
       fn: ({ end }) =>
         pollGameStats({
           url: `${baseUrl}${link}`,
           prevScoringPlays: [],
           prevPenaltyPlays: [],
+          prevHitPlays: [],
           end,
         }),
       invokeImmediately: false,
@@ -121,6 +124,7 @@ async function pollGameStats(config: {
   url: string;
   prevScoringPlays: number[];
   prevPenaltyPlays: number[];
+  prevHitPlays: number[];
   end: () => void;
 }) {
   const { url, prevScoringPlays, prevPenaltyPlays, end } = config;
@@ -135,18 +139,24 @@ async function pollGameStats(config: {
   const { teams } = data.gameData;
   const { scoringPlays, penaltyPlays, allPlays } = data.liveData.plays;
 
-  const sp = getPlayDiff(prevScoringPlays, scoringPlays);
-  const pp = getPlayDiff(prevPenaltyPlays, penaltyPlays);
-  const spvals = getValsByIndexes(sp, allPlays);
-  const ppvals = getValsByIndexes(pp, allPlays);
+  const scoringPlaysDiff = getPlayDiff(prevScoringPlays, scoringPlays);
+  const penaltyPlaysDiff = getPlayDiff(prevPenaltyPlays, penaltyPlays);
+  const scoringPlayValues = getValsByIndexes(scoringPlaysDiff, allPlays);
+  const penaltyPlayValues = getValsByIndexes(penaltyPlaysDiff, allPlays);
 
-  const scoringPlayers = getScoringPlayers(spvals, teams);
+  const scoringPlayers = getScoringPlayers(scoringPlayValues, teams);
+  const penalizedPlayers = getPenalizedPlayers(penaltyPlayValues, teams);
+
+  const playersToBeUpdated = [...scoringPlayers, ...penalizedPlayers];
+
+  console.log(playersToBeUpdated);
 
   setTimeout(async () => {
     await pollGameStats({
       url,
-      prevScoringPlays: sp,
-      prevPenaltyPlays: pp,
+      prevScoringPlays: scoringPlaysDiff,
+      prevPenaltyPlays: penaltyPlaysDiff,
+      prevHitPlays: [],
       end,
     });
   }, 10_000);
@@ -171,16 +181,46 @@ function getScoringPlayers(plays: Play[], teams: Teams) {
         playerTeamId,
         opponentTeamId,
         playerId: scoringPlayer?.player.id,
-        playerType: scoringPlayer?.playerType,
+        goals: 1,
+        points: 1,
+        assists: 0,
+        hits: 0,
+        penaltyMinutes: 0,
       },
       ...assistingPlayers.map((player) => ({
         playerTeamId,
         opponentTeamId,
         playerId: player.player.id,
-        playerType: player.playerType,
+        goals: 0,
+        points: 1,
+        assists: 1,
+        hits: 0,
+        penaltyMinutes: 0,
       })),
     ];
   });
+}
+
+function getPenalizedPlayers(plays: Play[], teams: Teams) {
+  return plays.flatMap(
+    ({ players, team: { id: playerTeamId }, result: { penaltyMinutes } }) => {
+      const penalizedPlayer = getPenalizedPlayer(players);
+      const opponentTeamId = getOpponentTeam(playerTeamId, teams);
+
+      return [
+        {
+          playerTeamId,
+          opponentTeamId,
+          playerId: penalizedPlayer?.player.id,
+          goals: 0,
+          points: 0,
+          assists: 0,
+          hits: 0,
+          penaltyMinutes,
+        },
+      ];
+    }
+  );
 }
 
 function getOpponentTeam(playerTeamId: number, teams: Teams) {
@@ -197,4 +237,8 @@ function getScoringPlayer(players: PlayerElement[]) {
 
 function getAssistingPlayers(players: PlayerElement[]) {
   return players.filter((player) => player.playerType === 'Assist');
+}
+
+function getPenalizedPlayer(players: PlayerElement[]) {
+  return players.find((player) => player.playerType === 'PenaltyOn');
 }
