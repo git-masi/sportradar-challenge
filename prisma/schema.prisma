@@ -1,12 +1,10 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("APP_DATABASE_URL")
-  schemas  = ["api", "app"]
 }
 
 model player_stats {
@@ -24,7 +22,6 @@ model player_stats {
   teams_player_stats_player_team_idToteams   teams   @relation("player_stats_player_team_idToteams", fields: [player_team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([player_id, game_pk])
-  @@schema("api")
 }
 
 model players {
@@ -36,28 +33,6 @@ model players {
   position     String
   player_stats player_stats[]
   teams        teams          @relation(fields: [team_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@schema("api")
-}
-
-model teams {
-  id                                                Int            @id
-  name                                              String
-  player_stats_player_stats_opponent_team_idToteams player_stats[] @relation("player_stats_opponent_team_idToteams")
-  player_stats_player_stats_player_team_idToteams   player_stats[] @relation("player_stats_player_team_idToteams")
-  players                                           players[]
-
-  @@schema("api")
-}
-
-model last_play {
-  league    String
-  game_pk   Int
-  last_play DateTime @db.Timestamptz(6)
-
-  @@id([league, game_pk])
-  @@index([last_play], map: "app_last_play_last_play")
-  @@schema("app")
 }
 
 model schedule {
@@ -68,6 +43,13 @@ model schedule {
   status    String
 
   @@id([league, game_pk])
-  @@index([game_date], map: "app_schedule_game_date")
-  @@schema("app")
+  @@index([status], map: "app_schedule_game_date")
+}
+
+model teams {
+  id                                                Int            @id
+  name                                              String
+  player_stats_player_stats_opponent_team_idToteams player_stats[] @relation("player_stats_opponent_team_idToteams")
+  player_stats_player_stats_player_team_idToteams   player_stats[] @relation("player_stats_player_team_idToteams")
+  players                                           players[]
 }
