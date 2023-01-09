@@ -2,9 +2,31 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "init",
+      "label": "start docker containers",
+      "type": "docker-compose",
+      "dockerCompose": {
+        "up": {
+          "detached": true,
+          "build": true
+        },
+        "files": ["${workspaceFolder}/docker-compose.yml"]
+      }
+    },
+    {
+      "label": "stop docker containers and remove local images and volumes",
+      "type": "docker-compose",
+      "dockerCompose": {
+        "down": {
+          "removeImages": "local",
+          "removeVolumes": true
+        },
+        "files": ["${workspaceFolder}/docker-compose.yml"]
+      }
+    },
+    {
+      "label": "initial ts build",
       "type": "shell",
-      "command": "[ ! -f \"./dist/index.js\" ] && npm run build || echo \"init complete\"",
+      "command": "[ ! -f \"./dist/index.js\" ] && npm run build || echo \"initial ts build complete\"",
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -41,7 +63,7 @@
     },
     {
       "label": "dev",
-      "dependsOn": ["init", "dev:tasks"],
+      "dependsOn": ["initial ts build", "dev:tasks"],
       "dependsOrder": "sequence"
     }
   ]
