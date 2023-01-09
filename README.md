@@ -124,6 +124,10 @@ This project is already set up to ignore `.env` files. Do not change that withou
 
 This project uses an .nvmrc file to note the version of Node required.
 
+### Ensure you have docker installed
+
+This project was created with `Docker version 20.10.2` in mind.
+
 ### Install packages
 
 `npm i`
