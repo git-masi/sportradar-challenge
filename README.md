@@ -140,11 +140,11 @@ You can run a task with the command pallet:
 
 ### Run local tasks
 
-First run the "start docker containers" task.
+First run the `start docker containers` task.
 
 This should start the database, pgAdmin, PostgREST API server, and swagger API server.
 
-Once the containers have started run the "dev" task.
+Once the containers have started run the `dev` task.
 
 This should start local development and you will see logs for services that have started.
 
