@@ -72,6 +72,17 @@ The chosen solution was to implement a few independent "services" that ingest on
 These services use some common components but ultimately they can evolve independently.
 By doing this the hope is that there is a balance between real world considerations and implementing the challenge requirements.
 
+## A note on TypeScript types
+
+As a matter of preferences types are defined where they are primarily used.
+
+Most of the types are note meant to be all-encompassing. Consider that fact that the APIs return more data than needed.
+Often the types in this project will contain the minimum data needed to save time/space. This is a design choice.
+
+Also note that many of the times were generated [using this service](https://app.quicktype.io/?l=ts) to help speed up development.
+
+As mentioned perviously everything has tradeoffs and speed trumps comprehensiveness in this case.
+
 ## Getting started
 
 ### Ensure you have the correct version of Node
@@ -101,14 +112,3 @@ This should start the database, pgAdmin, PostgREST API server, and swagger API s
 Once the containers have started run the "dev" task.
 
 This should start local development and you will see logs for services that have started.
-
-## A note on TypeScript types
-
-As a matter of preferences types are defined where they are primarily used.
-
-Most of the types are note meant to be all-encompassing. Consider that fact that the APIs return more data than needed.
-Often the types in this project will contain the minimum data needed to save time/space. This is a design choice.
-
-Also note that many of the times were generated [using this service](https://app.quicktype.io/?l=ts) to help speed up development.
-
-As mentioned perviously everything has tradeoffs and speed trumps comprehensiveness in this case.
