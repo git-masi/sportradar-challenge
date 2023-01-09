@@ -47,7 +47,7 @@ For more information on how to query using PostgREST see [the docs](https://post
 Initially an alternative architecture was considered consisting of various AWS services.
 The basic idea was to use EventBridge Scheduler to invoke Lambda functions at specified times.
 
-The architectural complexity of this solution was judged to be too high when considering a few factors:
+The architectural complexity of that solution was judged to be too high when considering a few factors:
 
 - Need DB connection pooling with RDS Proxy
 - Need to share code with Lambda Layers
@@ -56,6 +56,21 @@ The architectural complexity of this solution was judged to be too high when con
 The current solution using Docker containers allows for quicker local development.
 
 As always there are tradeoffs to everything and that above describes the thought processes on making those tradeoffs.
+
+### Yagni
+
+The project tries to strike a balance between project requirements and more real work considerations.
+
+Some questions to consider:
+
+- Should a single service be responsible for updating teams, players, and game stats?
+- In a real-world project wouldn't players and teams exist in the DB before a game starts?
+- What happens if the server dies and needs to be rebooted?
+- How do we handle individual job failures.
+
+The chosen solution was to implement a few independent "services" that ingest one kind of data.
+These services use some common components but ultimately they can evolve independently.
+By doing this the hope is that there is a balance between real world considerations and implementing the challenge requirements.
 
 ## Getting started
 
