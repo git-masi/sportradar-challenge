@@ -10,6 +10,6 @@ export function getCurrentDate(options?: { iso?: boolean; format?: string }) {
     : format(new Date(), options?.format ?? 'yyyy-MM-dd');
 }
 
-export function soon() {
-  return add(new Date(), { seconds: 6 }).toISOString();
+export function offsetCurrentDate(duration: Duration) {
+  return add(new Date(), duration).toISOString();
 }

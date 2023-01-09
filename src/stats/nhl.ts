@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { Context } from '../index.js';
+import { offsetCurrentDate } from '../utils/dates.js';
 import { fetchJson } from '../utils/http.js';
 import { RegisterFn } from '../utils/jobs.js';
 
@@ -103,10 +104,16 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   const baseUrl = 'https://statsapi.web.nhl.com';
   const scheduledGames = await getScheduledGames(ctx.prisma);
 
-  scheduledGames.forEach(({ game_date, game_pk, link }) => {
+  scheduledGames.forEach(({ game_date, game_pk, link, status }) => {
+    // If a game is in progress we can't start the cron at the game data
+    const cron =
+      status === 'In Progress'
+        ? new Date(offsetCurrentDate({ seconds: 5 }))
+        : new Date(game_date);
+
     register({
       name: `NHL Stats Game:${game_pk}`,
-      cron: new Date(game_date),
+      cron,
       fn: ({ end }) =>
         pollGameStats({
           ctx,
