@@ -1,9 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
 import { startPlayersService } from './players/index.js';
+import { updateNhlPlayers } from './players/nhl.js';
 import { startScheduleService } from './schedule/index.js';
 import { startStatsService } from './stats/index.js';
 import { startTeamsService } from './teams/index.js';
+import { updateNhlTeams } from './teams/nhl.js';
 
 // Additional configuration can be added for Datadog or other
 // services in the future
@@ -28,7 +30,18 @@ export const ctx: Context = Object.freeze({
   logger,
 });
 
-// startTeamsService(ctx);
-// startScheduleService(ctx);
-// startPlayersService(ctx);
-// startStatsService(ctx);
+(async () => {
+  // Some database tables have foreign key constraints so we need to init
+  // some values before starting any services
+  logger.info('Initializing required data');
+  await updateNhlTeams(ctx);
+  await updateNhlPlayers(ctx);
+
+  logger.info('Starting individual services');
+  await Promise.all([
+    startTeamsService(ctx),
+    startScheduleService(ctx),
+    startPlayersService(ctx),
+    startStatsService(ctx),
+  ]);
+})();
