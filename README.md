@@ -95,7 +95,7 @@ This project uses an .nvmrc file to note the version of Node required.
 
 ### Tasks
 
-There are a number of VS Code tasks which make local development easier. You can find them all in .vscode > tasks.json. Note that there are corresponding CLI commands for all tasks.
+There are a number of VS Code tasks which make local development easier. You can find them all in .vscode > tasks.json. Note that there are corresponding CLI commands for most tasks.
 
 You can run a task with the command pallet:
 
@@ -112,3 +112,10 @@ This should start the database, pgAdmin, PostgREST API server, and swagger API s
 Once the containers have started run the "dev" task.
 
 This should start local development and you will see logs for services that have started.
+
+### Stopping containers
+
+You can use the "stop docker containers and remove local images and volumes" to stop the Docker containers.
+But as the name suggest this will remove images and volumes similar to `docker compose down --remove-orphans -v`.
+
+If that is not the behavior you want then consider using the standard command: `docker compose down`.
