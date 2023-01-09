@@ -46,3 +46,6 @@ CREATE TABLE IF NOT EXISTS api.schedule (
 );
 -- Init indexes
 CREATE INDEX app_schedule_game_date ON api.schedule(status);
+-- Notify PostgREST of changes
+NOTIFY pgrst,
+'reload config';
