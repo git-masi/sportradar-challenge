@@ -6,7 +6,7 @@ import { startScheduleService } from './schedule/index.js';
 import { updateNhlSchedule } from './schedule/nhl.js';
 import { startStatsService } from './stats/index.js';
 import { startTeamsService } from './teams/index.js';
-import { updateNhlTeams } from './teams/nhl.js';
+import { createUpdateNhlTeamsConfig, updateNhlTeams } from './teams/nhl.js';
 
 // Additional configuration can be added for Datadog or other
 // services in the future
@@ -35,7 +35,7 @@ export const ctx: Context = Object.freeze({
   // Some database tables have foreign key constraints so we need to init
   // some values before starting any services
   logger.info('Initializing required data');
-  await updateNhlTeams(ctx);
+  await updateNhlTeams(createUpdateNhlTeamsConfig(ctx));
   await updateNhlPlayers(ctx);
   await updateNhlSchedule(ctx);
 

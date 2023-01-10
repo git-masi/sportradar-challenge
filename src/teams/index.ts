@@ -1,13 +1,13 @@
 import { Context } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
-import { updateNhlTeams } from './nhl.js';
+import { createUpdateNhlTeamsConfig, updateNhlTeams } from './nhl.js';
 
 export async function startTeamsService(ctx: Context) {
   const jobRequests = [
     {
       name: 'NHL Teams',
       cron: '0 30 0 * * *', // run once per day at 12:30am UTC
-      fn: () => updateNhlTeams(ctx),
+      fn: () => updateNhlTeams(createUpdateNhlTeamsConfig(ctx)),
       invokeImmediately: false,
     },
   ];

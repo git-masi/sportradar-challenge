@@ -1,34 +1,48 @@
 import { PrismaClient } from '@prisma/client';
+import { Logger } from 'winston';
 import { Context } from '../index.js';
 import { fetchJson } from '../utils/http.js';
 
-type TeamsResponse = {
+export type NhlTeamsResponse = {
   teams: Team[];
 };
 
-type Team = {
+export type Team = {
   id: number;
   name: string;
 };
 
-export async function updateNhlTeams(ctx: Context) {
-  const res = await fetchTeams();
+export interface UpdateNhlTeamsConfig {
+  logger: Logger;
+  fetchTeams: () => Promise<NhlTeamsResponse>;
+  saveTeams: (teams: Team[]) => Promise<void>;
+}
+
+export async function updateNhlTeams(config: UpdateNhlTeamsConfig) {
+  const res = await config.fetchTeams();
   const teams = getTeams(res);
 
-  await saveTeams(ctx.prisma, teams);
+  await config.saveTeams(teams);
 
-  ctx.logger.info('Successfully saved NHL teams');
+  config.logger.info('Successfully saved NHL teams');
 }
 
-function fetchTeams(): Promise<TeamsResponse> {
-  return fetchJson<TeamsResponse>('https://statsapi.web.nhl.com/api/v1/teams', {
-    timeout: 20_000,
-    retry: 5,
-  });
+export function createUpdateNhlTeamsConfig(ctx: Context) {
+  return {
+    logger: ctx.logger,
+    fetchTeams,
+    saveTeams: (teams: Team[]) => saveTeams(ctx.prisma, teams),
+  };
 }
 
-function getTeams(res: TeamsResponse) {
-  return res.teams.map(({ id, name }) => ({ id, name }));
+function fetchTeams(): Promise<NhlTeamsResponse> {
+  return fetchJson<NhlTeamsResponse>(
+    'https://statsapi.web.nhl.com/api/v1/teams',
+    {
+      timeout: 20_000,
+      retry: 5,
+    }
+  );
 }
 
 async function saveTeams(prisma: PrismaClient, teams: Team[]) {
@@ -36,4 +50,8 @@ async function saveTeams(prisma: PrismaClient, teams: Team[]) {
     data: teams,
     skipDuplicates: true,
   });
+}
+
+function getTeams(res: NhlTeamsResponse) {
+  return res.teams.map(({ id, name }) => ({ id, name }));
 }
