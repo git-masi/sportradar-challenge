@@ -6,9 +6,9 @@ This is an implementation of the [Sportradar advanced challenge](https://github.
 
 ## Software design philosophy
 
-This project follows a "functional-light" style of JavaScript. That is to say, not pure functional programming but rather bits for "functional thinking" or "functional style".
+This project follows a "functional-light" style of JavaScript. That is to say, not pure functional programming but rather "functional thinking" or "functional style".
 
-The project also borrows ideas from onion architecture/ports and adaptors and the Go programming language.
+The project also borrows ideas from the "functional core imperative shell" model, and the Go programming language.
 
 You will note that this project makes use of function "hoisting". This can be somewhat controversial but note that in general files follow this structure:
 
@@ -21,6 +21,7 @@ You will note that this project makes use of function "hoisting". This can be so
 - Be mindful of side effects and push them to the edge of the application (e.g. DB queries and API calls)
 - Avoid `this` keyword if possible
 - Use higher order functions instead of classes
+- Try to maintain immutability
 
 This is not a judgement on "OOP" just a preference for functional style and imperative programming.
 
