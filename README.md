@@ -8,7 +8,7 @@ This is an implementation of the [Sportradar advanced challenge](https://github.
 
 This project follows a "functional-light" style of JavaScript. That is to say, not pure functional programming but rather "functional thinking" or "functional style".
 
-The project also borrows ideas from the "functional core imperative shell" model, and the Go programming language.
+The project also borrows ideas from the "functional core imperative shell" model, DDD, and the Go programming language.
 
 You will note that this project makes use of function "hoisting". This can be somewhat controversial but note that in general files follow this structure:
 
