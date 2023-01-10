@@ -8,6 +8,8 @@ This is an implementation of the [Sportradar advanced challenge](https://github.
 
 This project follows a "functional-light" style of JavaScript. That is to say, not pure functional programming but rather "functional thinking" or "functional style".
 
+This is not a judgement on "OOP" just a preference for functional style and imperative programming.
+
 The project also borrows ideas from the "functional core imperative shell" model, DDD, and the Go programming language.
 
 You will note that this project makes use of function "hoisting". This can be somewhat controversial but note that in general files follow this structure:
@@ -22,8 +24,6 @@ You will note that this project makes use of function "hoisting". This can be so
 - Avoid `this` keyword if possible
 - Use higher order functions instead of classes
 - Try to maintain immutability
-
-This is not a judgement on "OOP" just a preference for functional style and imperative programming.
 
 ### Resources
 
