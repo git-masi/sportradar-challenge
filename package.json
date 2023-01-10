@@ -13,7 +13,9 @@
     "dev:build": "tsc -w",
     "dev:run": "nodemon ./dist/index.js",
     "prisma:introspect": "npx prisma db pull",
-    "prisma:generate": "npx prisma generate"
+    "prisma:generate": "npx prisma generate",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@prisma/client": "^4.8.1",
