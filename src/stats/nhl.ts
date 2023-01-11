@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, schedule } from '@prisma/client';
 import { Context } from '../index.js';
 import { offsetCurrentDate } from '../utils/dates.js';
 import { fetchJson } from '../utils/http.js';
@@ -100,9 +100,15 @@ type PlayerStats = {
   penaltyMinutes: number;
 };
 
-export async function updateNhlStats(ctx: Context, register: RegisterFn) {
+type GetScheduledGames = () => Promise<schedule[]>;
+
+export async function updateNhlStats(
+  ctx: Context,
+  register: RegisterFn,
+  getScheduledGames: GetScheduledGames
+) {
   const baseUrl = 'https://statsapi.web.nhl.com';
-  const scheduledGames = await getScheduledGames(ctx.prisma);
+  const scheduledGames = await getScheduledGames();
 
   scheduledGames.forEach(({ game_date, game_pk, link, status }) => {
     // If a game is in progress we can't start the cron at the game date because
@@ -131,14 +137,16 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   ctx.logger.info('Successfully registered game/player stats jobs');
 }
 
-async function getScheduledGames(prisma: PrismaClient) {
-  return await prisma.schedule.findMany({
-    where: {
-      status: {
-        in: ['Scheduled', 'In Progress'],
+export function getScheduledGames(prisma: PrismaClient) {
+  return async () => {
+    return await prisma.schedule.findMany({
+      where: {
+        status: {
+          in: ['Scheduled', 'In Progress'],
+        },
       },
-    },
-  });
+    });
+  };
 }
 
 async function pollGameStats(config: {

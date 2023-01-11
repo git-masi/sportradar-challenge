@@ -1,6 +1,6 @@
 import { Context } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
-import { updateNhlStats } from './nhl.js';
+import { getScheduledGames, updateNhlStats } from './nhl.js';
 
 export async function startStatsService(ctx: Context) {
   const manager = JobManager(ctx.logger.info, ctx.logger.error);
@@ -8,7 +8,8 @@ export async function startStatsService(ctx: Context) {
     {
       name: 'NHL Stats',
       cron: '0 0 2 * * *', // run once per day at 2am UTC
-      fn: () => updateNhlStats(ctx, manager.register),
+      fn: () =>
+        updateNhlStats(ctx, manager.register, getScheduledGames(ctx.prisma)),
     },
   ];
 
