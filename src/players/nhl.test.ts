@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { mockLogger } from '../mocks/winston.js';
-import { updateNhlPlayers } from './nhl.js';
+import { updateNhlPlayers, UpdateNhlPlayersConfig } from './nhl.js';
 
 describe('Update NHL players', () => {
   it('should save NHL players', async () => {
@@ -58,7 +58,7 @@ describe('Update NHL players', () => {
       savePlayers: mockSavePlayers,
     };
 
-    await updateNhlPlayers(config);
+    await updateNhlPlayers(config as unknown as UpdateNhlPlayersConfig);
 
     expect(mockSavePlayers).toHaveBeenCalledWith(players);
     expect(mockLogger.info).toHaveBeenCalled();
