@@ -188,7 +188,7 @@ values('NHL', 2022020638, '2023-01-08 20:00:00+00', '/api/v1/game/2022020638/fee
 
 Note the "In Progress" status.
 
-Then in src/stats/nhl.ts add `'Final'` to the `gameStates` array around line 154.
+Then in src/stats/nhl.ts add `'Final'` to the `gameStates` array in the `pollGameStats` function.
 
 Start the local dev server as described above.
 
