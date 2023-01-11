@@ -174,6 +174,17 @@ But as the name suggest this will remove images and volumes similar to `docker c
 
 If that is not the behavior you want then consider using the standard command: `docker compose down`.
 
+## Testing
+
+To run the tests use the command `npm run test`.
+
+There are a limited number of tests due to time constraints.
+Given that most of the useful work, outside of running jobs, consists of ETL functions or "transaction scripts"
+the existing tests use a "testing diamond" approach with an emphasis on integration tests.
+
+Specifically, the focus is on testing the functions that actually pull data from the API, transform it, and save
+it to the DB.
+
 ## Fake it
 
 In the absence of a good test harness (for now) there may or may not be any live games to draw data from.
