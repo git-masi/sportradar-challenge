@@ -1,20 +1,20 @@
+import { vi } from 'vitest';
 import { Logger } from 'winston';
 
-const winston = jest.mock('winston');
+vi.mock('winston');
 
 const winstonMock = {
-  ...winston,
   transports: {
-    Console: jest.fn(),
+    Console: vi.fn(),
   },
-  createLogger: jest.fn(() => ({
-    warn: jest.fn(),
-    error: jest.fn(),
-    fatal: jest.fn(),
-    await: jest.fn(),
-    success: jest.fn(),
-    info: jest.fn(),
-    add: jest.fn(),
+  createLogger: vi.fn(() => ({
+    warn: vi.fn(),
+    error: vi.fn(),
+    fatal: vi.fn(),
+    await: vi.fn(),
+    success: vi.fn(),
+    info: vi.fn(),
+    add: vi.fn(),
   })),
 };
 

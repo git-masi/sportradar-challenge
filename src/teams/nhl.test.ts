@@ -1,3 +1,4 @@
+import { describe, expect, it, vi } from 'vitest';
 import { mockLogger } from '../mocks/winston.js';
 import { updateNhlTeams } from './nhl.js';
 
@@ -8,8 +9,8 @@ describe('Update NHL teams', () => {
       { id: 2, name: 'Calgary Coders' },
     ];
     const teamsResponse = { teams };
-    const mockFetchTeams = jest.fn(async () => teamsResponse);
-    const mockSaveTeams = jest.fn(async () => {});
+    const mockFetchTeams = vi.fn(async () => teamsResponse);
+    const mockSaveTeams = vi.fn(async () => {});
 
     const config = {
       logger: mockLogger,
