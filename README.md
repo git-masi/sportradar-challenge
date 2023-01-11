@@ -4,6 +4,8 @@
 
 This is an implementation of the [Sportradar advanced challenge](https://github.com/sportradarus/sportradar-advanced-challenge).
 
+You can find instructions on how to run the project towards the bottom in the "getting started" section.
+
 ## Software design philosophy
 
 This project follows a "functional-light" style of JavaScript. That is to say, not pure functional programming but rather "functional thinking" or "functional style".
