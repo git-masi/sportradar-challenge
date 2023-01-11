@@ -160,7 +160,7 @@ async function pollGameStats(config: {
   const { url, prevScoringPlays, prevPenaltyPlays, prevHitPlays, ctx, end } =
     config;
   try {
-    const gameStates = ['Scheduled', 'In Progress', 'Final'];
+    const gameStates = ['Scheduled', 'In Progress'];
     const data = await fetchJson<GameFeed>(url, { timeout: 0, retry: 0 });
     const {
       gamePk,
