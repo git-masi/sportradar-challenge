@@ -26,6 +26,7 @@ You will note that this project makes use of function "hoisting". This can be so
 - Avoid `this` keyword if possible
 - Use higher order functions instead of classes
 - Try to maintain immutability
+- Use dependency injection
 
 ### Resources
 
