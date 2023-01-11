@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { Logger } from 'winston';
 import { Context } from '../index.js';
 import { fetchJson } from '../utils/http.js';
 
-type Roster = {
+export type Roster = {
   teams: TeamData[];
 };
 
@@ -51,15 +52,31 @@ type Player = {
   number: number;
 };
 
-export async function updateNhlPlayers(ctx: Context) {
-  const roster = await fetchRoster();
+export interface UpdateNhlPlayersConfig {
+  logger: Logger;
+  fetchRoster: () => Promise<Roster>;
+  fetchPeople: (playerIds: number[]) => Promise<People[]>;
+  savePlayers: (players: Player[]) => Promise<void>;
+}
+
+export async function updateNhlPlayers(config: UpdateNhlPlayersConfig) {
+  const roster = await config.fetchRoster();
   const playerIds = getPlayerIds(roster);
-  const people = await fetchPeople(playerIds);
+  const people = await config.fetchPeople(playerIds);
   const players = getPlayers(people);
 
-  await savePlayers(ctx.prisma, players);
+  await config.savePlayers(players);
 
-  ctx.logger.info('Successfully saved NHL players');
+  config.logger.info('Successfully saved NHL players');
+}
+
+export function createUpdateNhlPlayersConfig(ctx: Context) {
+  return {
+    logger: ctx.logger,
+    fetchRoster,
+    fetchPeople,
+    savePlayers: (players: Player[]) => savePlayers(ctx.prisma, players),
+  };
 }
 
 function fetchRoster(): Promise<Roster> {

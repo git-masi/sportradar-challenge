@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import winston from 'winston';
 import { startPlayersService } from './players/index.js';
-import { updateNhlPlayers } from './players/nhl.js';
+import {
+  createUpdateNhlPlayersConfig,
+  updateNhlPlayers,
+} from './players/nhl.js';
 import { startScheduleService } from './schedule/index.js';
 import {
   createUpdateNhlScheduleConfig,
@@ -39,7 +42,7 @@ export const ctx: Context = Object.freeze({
   // some values before starting any services
   logger.info('Initializing required data');
   await updateNhlTeams(createUpdateNhlTeamsConfig(ctx));
-  await updateNhlPlayers(ctx);
+  await updateNhlPlayers(createUpdateNhlPlayersConfig(ctx));
   await updateNhlSchedule(createUpdateNhlScheduleConfig(ctx));
 
   logger.info('Starting individual services');
