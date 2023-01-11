@@ -3,7 +3,10 @@ import winston from 'winston';
 import { startPlayersService } from './players/index.js';
 import { updateNhlPlayers } from './players/nhl.js';
 import { startScheduleService } from './schedule/index.js';
-import { updateNhlSchedule } from './schedule/nhl.js';
+import {
+  createUpdateNhlScheduleConfig,
+  updateNhlSchedule,
+} from './schedule/nhl.js';
 import { startStatsService } from './stats/index.js';
 import { startTeamsService } from './teams/index.js';
 import { createUpdateNhlTeamsConfig, updateNhlTeams } from './teams/nhl.js';
@@ -37,7 +40,7 @@ export const ctx: Context = Object.freeze({
   logger.info('Initializing required data');
   await updateNhlTeams(createUpdateNhlTeamsConfig(ctx));
   await updateNhlPlayers(ctx);
-  await updateNhlSchedule(ctx);
+  await updateNhlSchedule(createUpdateNhlScheduleConfig(ctx));
 
   logger.info('Starting individual services');
   await Promise.all([

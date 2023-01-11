@@ -1,92 +1,28 @@
 import { PrismaClient } from '@prisma/client';
+import { Logger } from 'winston';
 import { Context } from '../index.js';
 import { fetchJson } from '../utils/http.js';
 
 type Schedule = {
-  copyright: string;
-  totalItems: number;
-  totalEvents: number;
-  totalGames: number;
-  totalMatches: number;
-  metaData: MetaData;
-  wait: number;
   dates: ScheduleDate[];
 };
 
 type ScheduleDate = {
-  date: string;
-  totalItems: number;
-  totalEvents: number;
-  totalGames: number;
-  totalMatches: number;
   games: Game[];
-  events: unknown[];
-  matches: unknown[];
 };
 
 type Game = {
   gamePk: number;
   link: string;
-  gameType: string;
-  season: string;
   gameDate: string;
   status: Status;
-  teams: ScheduledTeams;
-  venue: Venue;
-  content: Content;
-};
-
-type Content = {
-  link: string;
 };
 
 type Status = {
-  abstractGameState: AbstractGameState;
-  codedGameState: string;
   detailedState: DetailedState;
-  statusCode: string;
-  startTimeTBD: boolean;
 };
 
 type DetailedState = 'Scheduled' | 'In Progress' | 'Final';
-
-type AbstractGameState = 'Preview' | 'Live' | 'Final';
-
-type ScheduledTeams = {
-  away: ScheduledTeam;
-  home: ScheduledTeam;
-};
-
-type ScheduledTeam = {
-  leagueRecord: LeagueRecord;
-  score: number;
-  team: Team;
-};
-
-type LeagueRecord = {
-  wins: number;
-  losses: number;
-  ot: number;
-  type: Type;
-};
-
-type Type = 'league';
-
-type Team = {
-  id: number;
-  name: string;
-  link: string;
-};
-
-type Venue = {
-  id: number;
-  name: string;
-  link: string;
-};
-
-type MetaData = {
-  timeStamp: string;
-};
 
 type ScheduledGame = {
   league: string;
@@ -96,14 +32,29 @@ type ScheduledGame = {
   status: string;
 };
 
-export async function updateNhlSchedule(ctx: Context) {
-  const schedule = await fetchSchedule();
+export interface UpdateNhlScheduleConfig {
+  logger: Logger;
+  fetchSchedule: () => Promise<Schedule>;
+  saveScheduledGames: (scheduledGames: ScheduledGame[]) => Promise<void>;
+}
+
+export async function updateNhlSchedule(config: UpdateNhlScheduleConfig) {
+  const schedule = await config.fetchSchedule();
   const games = getGames(schedule);
   const scheduledGames = getScheduledGames(games);
 
-  await saveScheduledGames(ctx.prisma, scheduledGames);
+  await config.saveScheduledGames(scheduledGames);
 
-  ctx.logger.info('Successfully saved scheduled NHL games');
+  config.logger.info('Successfully saved scheduled NHL games');
+}
+
+export function createUpdateNhlScheduleConfig(ctx: Context) {
+  return {
+    logger: ctx.logger,
+    fetchSchedule,
+    saveScheduledGames: (scheduledGames: ScheduledGame[]) =>
+      saveScheduledGames(ctx.prisma, scheduledGames),
+  };
 }
 
 async function saveScheduledGames(

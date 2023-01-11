@@ -1,13 +1,13 @@
 import { Context } from '../index.js';
 import { JobManager } from '../utils/jobs.js';
-import { updateNhlSchedule } from './nhl.js';
+import { createUpdateNhlScheduleConfig, updateNhlSchedule } from './nhl.js';
 
 export async function startScheduleService(ctx: Context) {
   const jobRequests = [
     {
       name: 'NHL Schedule',
       cron: '0 0 0 * * *', // run once per day at midnight UTC
-      fn: () => updateNhlSchedule(ctx),
+      fn: () => updateNhlSchedule(createUpdateNhlScheduleConfig(ctx)),
       invokeImmediately: false,
     },
   ];
