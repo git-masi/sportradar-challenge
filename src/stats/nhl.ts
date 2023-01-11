@@ -278,6 +278,8 @@ function getAllPlayerStats(plays: Play[], teams: Teams, gamePk: number) {
   return plays.flatMap(
     ({ players, team: { id: playerTeamId }, result: { penaltyMinutes } }) => {
       const opponentTeamId = getOpponentTeam(playerTeamId, teams);
+      // There is room for future optimization here to reduce the number of times
+      // we loop over the players array.
       const scoringPlayer = getScoringPlayer(players);
       const penalizedPlayer = getPenalizedPlayer(players);
       const hitter = getHitter(players);
