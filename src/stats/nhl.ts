@@ -105,7 +105,8 @@ export async function updateNhlStats(ctx: Context, register: RegisterFn) {
   const scheduledGames = await getScheduledGames(ctx.prisma);
 
   scheduledGames.forEach(({ game_date, game_pk, link, status }) => {
-    // If a game is in progress we can't start the cron at the game data
+    // If a game is in progress we can't start the cron at the game date because
+    // it will be in the past
     const cron =
       status === 'In Progress'
         ? new Date(offsetCurrentDate({ seconds: 5 }))
