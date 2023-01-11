@@ -183,24 +183,20 @@ async function pollGameStats(config: {
     // Get all scoring plays since last run
     const scoringPlaysDiff = getPlayDiff(prevScoringPlays, scoringPlays);
     const scoringPlayValues = getValuesByIndexes(scoringPlaysDiff, allPlays);
-    const scoringPlayers = getScoringPlayers(scoringPlayValues, teams);
 
     // Get all penalty plays since last run
     const penaltyPlaysDiff = getPlayDiff(prevPenaltyPlays, penaltyPlays);
     const penaltyPlayValues = getValuesByIndexes(penaltyPlaysDiff, allPlays);
-    const penalizedPlayers = getPenalizedPlayers(penaltyPlayValues, teams);
 
     // Get all hit plays since last run
     const hitPlayIndexes = getNewHitPlayIndexes(prevHitPlays, allPlays);
     const hitPlayValues = getValuesByIndexes(hitPlayIndexes, allPlays);
-    const hitters = getHitters(hitPlayValues, teams);
 
-    // Add `gamePk` to all plays
-    const allPlayerStats = [
-      ...scoringPlayers,
-      ...penalizedPlayers,
-      ...hitters,
-    ].map((data) => ({ ...data, gamePk }));
+    const allPlayerStats = getAllPlayerStats(
+      [...scoringPlayValues, ...penaltyPlayValues, ...hitPlayValues],
+      teams,
+      gamePk
+    );
 
     // Merge data into a single set of stats per player
     const playerStatsToUpdate = mergePlayerStats(allPlayerStats);
@@ -278,77 +274,71 @@ async function saveGameStatusFinal(prisma: PrismaClient, gamePk: number) {
   });
 }
 
-function getScoringPlayers(plays: Play[], teams: Teams) {
-  return plays.flatMap(({ players, team: { id: playerTeamId } }) => {
-    const scoringPlayer = getScoringPlayer(players);
-    const assistingPlayers = getAssistingPlayers(players);
-    const opponentTeamId = getOpponentTeam(playerTeamId, teams);
-
-    return [
-      {
-        playerTeamId,
-        opponentTeamId,
-        playerId: scoringPlayer.player.id,
-        goals: 1,
-        points: 1,
-        assists: 0,
-        hits: 0,
-        penaltyMinutes: 0,
-      },
-      ...assistingPlayers.map((player) => ({
-        playerTeamId,
-        opponentTeamId,
-        playerId: player.player.id,
-        goals: 0,
-        points: 1,
-        assists: 1,
-        hits: 0,
-        penaltyMinutes: 0,
-      })),
-    ];
-  });
-}
-
-function getPenalizedPlayers(plays: Play[], teams: Teams) {
+function getAllPlayerStats(plays: Play[], teams: Teams, gamePk: number) {
   return plays.flatMap(
     ({ players, team: { id: playerTeamId }, result: { penaltyMinutes } }) => {
-      const penalizedPlayer = getPenalizedPlayer(players);
       const opponentTeamId = getOpponentTeam(playerTeamId, teams);
+      const scoringPlayer = getScoringPlayer(players);
+      const penalizedPlayer = getPenalizedPlayer(players);
+      const hitter = getHitter(players);
+      const assistingPlayers = getAssistingPlayers(players);
+      const instigatingPlayers = [];
+      const baseStats = {
+        playerTeamId,
+        opponentTeamId,
+        gamePk,
+      };
 
-      return [
-        {
-          playerTeamId,
-          opponentTeamId,
+      if (scoringPlayer) {
+        instigatingPlayers.push({
+          ...baseStats,
+          playerId: scoringPlayer.player.id,
+          goals: 1,
+          points: 1,
+          assists: 0,
+          hits: 0,
+          penaltyMinutes: 0,
+        });
+      }
+
+      if (penalizedPlayer) {
+        instigatingPlayers.push({
+          ...baseStats,
           playerId: penalizedPlayer.player.id,
           goals: 0,
           points: 0,
           assists: 0,
           hits: 0,
-          penaltyMinutes: penaltyMinutes as number,
-        },
+          penaltyMinutes: penaltyMinutes ?? 0,
+        });
+      }
+
+      if (hitter) {
+        instigatingPlayers.push({
+          ...baseStats,
+          playerId: hitter.player.id,
+          goals: 0,
+          points: 0,
+          assists: 0,
+          hits: 1,
+          penaltyMinutes: 0,
+        });
+      }
+
+      return [
+        ...instigatingPlayers,
+        ...assistingPlayers.map((player) => ({
+          ...baseStats,
+          playerId: player.player.id,
+          goals: 0,
+          points: 1,
+          assists: 1,
+          hits: 0,
+          penaltyMinutes: 0,
+        })),
       ];
     }
   );
-}
-
-function getHitters(plays: Play[], teams: Teams) {
-  return plays.flatMap(({ players, team: { id: playerTeamId } }) => {
-    const hitter = getHitter(players);
-    const opponentTeamId = getOpponentTeam(playerTeamId, teams);
-
-    return [
-      {
-        playerTeamId,
-        opponentTeamId,
-        playerId: hitter.player.id,
-        goals: 0,
-        points: 0,
-        assists: 0,
-        hits: 1,
-        penaltyMinutes: 0,
-      },
-    ];
-  });
 }
 
 function getNewHitPlayIndexes(prevHitPlays: number[], allPlays: Play[]) {
@@ -413,9 +403,7 @@ function getOpponentTeam(playerTeamId: number, teams: Teams) {
 }
 
 function getScoringPlayer(players: PlayerElement[]) {
-  return players.find(
-    (player) => player.playerType === 'Scorer'
-  ) as PlayerElement;
+  return players.find((player) => player.playerType === 'Scorer');
 }
 
 function getAssistingPlayers(players: PlayerElement[]) {
@@ -423,13 +411,9 @@ function getAssistingPlayers(players: PlayerElement[]) {
 }
 
 function getPenalizedPlayer(players: PlayerElement[]) {
-  return players.find(
-    (player) => player.playerType === 'PenaltyOn'
-  ) as PlayerElement;
+  return players.find((player) => player.playerType === 'PenaltyOn');
 }
 
 function getHitter(players: PlayerElement[]) {
-  return players.find(
-    (player) => player.playerType === 'Hitter'
-  ) as PlayerElement;
+  return players.find((player) => player.playerType === 'Hitter');
 }
