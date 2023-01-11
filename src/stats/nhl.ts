@@ -347,7 +347,7 @@ function getNewHitPlayIndexes(prevHitPlays: number[], allPlays: Play[]) {
     return [];
   }
 
-  const idxAfterLastHitPlay = (prevHitPlays.at(-1) ?? 0) + 1;
+  const idxAfterLastHitPlay = (prevHitPlays[prevHitPlays.length - 1] ?? 0) + 1;
   const newHitPlayIndexes = [];
 
   for (let i = allPlays.length - 1; i >= idxAfterLastHitPlay; i--) {
