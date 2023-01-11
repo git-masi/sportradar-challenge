@@ -86,6 +86,11 @@ As mentioned perviously everything has tradeoffs and speed trumps comprehensiven
 
 ## Getting started
 
+### Video walk-through
+
+This README contains all of the instructions needed to get the project running.
+However, a basic [video walk-through can be found here](https://www.loom.com/share/1f97c699906a44a08b5a09ace55cba7d).
+
 ### Environment variables
 
 You need to create a `.env` file for the project to work. Here is an example with all the required fields to get started.
