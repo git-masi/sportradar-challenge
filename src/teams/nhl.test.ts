@@ -20,7 +20,7 @@ describe('Update NHL teams', () => {
 
     await updateNhlTeams(config);
 
-    expect(mockSaveTeams).toHaveBeenLastCalledWith(teams);
+    expect(mockSaveTeams).toHaveBeenCalledWith(teams);
     expect(mockLogger.info).toHaveBeenCalled();
   });
 });

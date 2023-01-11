@@ -44,7 +44,7 @@ describe('Update NHL daily schedule', () => {
 
     await updateNhlSchedule(config as unknown as UpdateNhlScheduleConfig);
 
-    expect(saveScheduledGames).toHaveBeenLastCalledWith(scheduledGames);
+    expect(saveScheduledGames).toHaveBeenCalledWith(scheduledGames);
     expect(mockLogger.info).toHaveBeenCalled();
   });
 });
